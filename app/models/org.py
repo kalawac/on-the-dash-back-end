@@ -10,7 +10,7 @@ class Org(db.Model):
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
     work_focus = db.Column(db.Enum(WF))
-    # contacts = db.relationship("Contact", back_populates="orgs")
+    contacts = db.relationship("Contact", back_populates="orgs")
 
     @classmethod
     def new_from_dict(cls, data_dict):
