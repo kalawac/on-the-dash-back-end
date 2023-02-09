@@ -1,8 +1,8 @@
 """create relationships
 
-Revision ID: 2c86fe05315a
-Revises: d1bc928fafd8
-Create Date: 2023-02-09 12:00:46.332705
+Revision ID: 4950d0255e6d
+Revises: f909847a23d2
+Create Date: 2023-02-09 15:00:04.720890
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '2c86fe05315a'
-down_revision = 'd1bc928fafd8'
+revision = '4950d0255e6d'
+down_revision = 'f909847a23d2'
 branch_labels = None
 depends_on = None
 
