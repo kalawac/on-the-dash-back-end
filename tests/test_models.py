@@ -3,6 +3,7 @@ import pytest
 from app import db
 from app.models.contact import Contact
 from app.models.org import Org
+from app.models.work_focus import WorkFocus
 
 
 def test_create_contact_no_orgs_no_events(client):
@@ -106,6 +107,7 @@ def test_contact_to_dict_no_orgs_no_events(client):
     assert result["events"] == []
 
 
+# @pytest.mark.skip()
 def test_contact_repr(client):
     test_response = {
         "fname": "Agnes",
@@ -127,3 +129,70 @@ def test_contact_repr(client):
     result = f'{new_contact} is from Hong Kong'
 
     assert result == "<Contact 'Agnes Chow'> is from Hong Kong"
+
+
+# @pytest.mark.skip()
+def test_create_org_no_work_focus(client):
+    test_response = {
+            "name": "Babies for Boomerangs",
+            "org_sector": 2
+            }
+
+    result = Org(
+        name=test_response["name"],
+        org_sector=test_response["org_sector"],
+        )
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
+    assert result.name == "Babies for Boomerangs"
+    assert result.org_sector == 2
+    assert result.work_focus == []
+
+
+# @pytest.mark.skip()
+def test_create_org_empty_work_focus(client):
+    test_response = {
+            "name": "Babies for Boomerangs",
+            "org_sector": 2,
+            "work_focus": []
+            }
+
+    result = Org(
+        name=test_response["name"],
+        org_sector=test_response["org_sector"],
+        work_focus=test_response["work_focus"],
+        )
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
+    assert result.name == "Babies for Boomerangs"
+    assert result.org_sector == 2
+    assert result.work_focus == []
+
+
+# @pytest.mark.skip()
+def test_create_org_one_work_focus(client):
+    test_response = {
+            "name": "Thriving",
+            "org_sector": 7,
+            "work_focus": [1]
+            }
+
+    result = Org(
+        name=test_response["name"],
+        org_sector=test_response["org_sector"],
+        work_focus=test_response["work_focus"],
+        )
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
+    assert result.name == "Thriving"
+    assert result.org_sector == 7
+    assert result.work_focus == [1]

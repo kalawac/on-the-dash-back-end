@@ -42,7 +42,7 @@ def one_contact(app):
     db.session.commit()
 
 
-def three_contacts(app):
+def five_contacts(app):
     contact1 = Contact.new_from_dict({
         "fname": "Nemonte",
         "lname": "Nenquimo",
@@ -64,17 +64,51 @@ def three_contacts(app):
         "gender": 2,
     })
 
+    contact4 = Contact.new_from_dict({
+        "fname": "Agnes",
+        "lname": "Chow",
+        "age": 26,
+        "gender": 1,
+    })
+
+    contact5 = Contact.new_from_dict({
+        "fname": "Mary",
+        "lname": "Seacole",
+        "age": 52,
+        "gender": 1,
+    })
+
     db.session.add_all([contact1, contact2, contact3])
     db.session.commit()
 
-# def one_org(app):
-#     org_dict = {
-#         "name": "Abacus Inc.",
-#         "age": 37,
-#         "gender": 1,
-#     }
+def one_org(app):
+    org_dict = {
+        "name": "Abacus Inc.",
+        "org_sector": 5,
+        "work_focus": [99],
+    }
 
-#     new_org = Org.new_from_dict(org_dict)
+    new_org = Org.new_from_dict(org_dict)
     
-#     db.session.add(new_org)
-#     db.session.commit()
+    db.session.add(new_org)
+    db.session.commit()
+
+def three_orgs(app):
+    db.session.add_all([
+        Org.new_from_dict({
+            "name": "Babies for Boomerangs",
+            "org_sector": 2,
+            "work_focus": [4]
+            }),
+        Org.new_from_dict({
+            "name": "Catch Me!",
+            "org_sector": 2,
+            "work_focus": []
+            }),
+        Org.new_from_dict({
+            "name": "Thriving",
+            "org_sector": 7,
+            "work_focus": [1, 2, 4]
+            }),
+    ])
+    db.session.commit()

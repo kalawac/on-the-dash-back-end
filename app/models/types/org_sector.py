@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class OrgSector(int, Enum):
+class OrgSector(IntEnum):
     ACADEMIA = 1
     NGO = 2
     GOVT = 3

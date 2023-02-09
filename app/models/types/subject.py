@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class Subject(int, Enum):
+class Subject(IntEnum):
     ACCOUNTING = 1
     ANTI_CORR_GEN = 2
     ANTI_CORR_FOR_ACC = 3

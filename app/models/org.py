@@ -2,24 +2,35 @@ from app import db
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from .types.org_sector import OrgSector
-from .types.work_focus import WF
+
+# PostgreSQL Array of Enum has bug. Switched to relationship with model WorkFocus.
 
 class Org(db.Model):
     id = db.Column(
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
-    work_focus = db.Column(db.ARRAY(db.Enum("WF", name="wf_enum")))
-    contacts = db.relationship("Contact", back_populates="orgs")
+    # foci = db.Column(db.Integer, db.ForeignKey('work_focus.id'))
+    # focus_rel = db.relationship("WorkFocus", back_populates="orgs")
+    # contacts = db.relationship("Contact", back_populates="orgs")
+
+    def __repr__(self):
+        return '<Org %r>' % self.name
 
     @classmethod
     def new_from_dict(cls, data_dict):
         new_org = cls(
             name=data_dict["name"], 
             org_sector=data_dict["sector"],
-            work_focus=data_dict["focus"], 
             )
 
+        if data_dict.get("foci"):
+            for wf_id in data_dict["foci"]:
+                validate_item(WorkFocus, wf_id)
+            
+            new_org.foci = data_dict["foci"]
+
+        # thought: there should never be contacts there. confirm. if not, delete. maybe for csv?
         if len(data_dict.get("contact_ids", [])) >= 1:
             new_org.contact_ids = data_dict["contact_ids"]
         
@@ -30,7 +41,7 @@ class Org(db.Model):
                 "id": self.id,
                 "name": self.name,
                 "sector": self.org_sector,
-                "focus": self.work_focus,
+                "foci": self.foci,
                 "contacts": [],
             }
         

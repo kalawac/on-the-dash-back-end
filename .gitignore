@@ -1,5 +1,7 @@
 .vscode
 .DS_Store
+org_copy.py
+work_focus_enum.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

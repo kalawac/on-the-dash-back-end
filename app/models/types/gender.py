@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class Gender(int, Enum):
+class Gender(IntEnum):
     FEMALE = 1
     MALE = 2
     NONBINARY = 3

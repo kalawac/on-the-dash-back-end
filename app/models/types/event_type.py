@@ -1,7 +1,8 @@
-from enum import Enum
+from enum import IntEnum
 
-class EventType(int, Enum):
-    CONF_FORUM = 1
+class EventType(IntEnum):
+    CONFERENCE = 1
+    FORUM = 1
     MEETING = 2
     TA = 3
     TRAINING = 4
