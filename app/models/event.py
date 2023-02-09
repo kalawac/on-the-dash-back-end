@@ -10,8 +10,8 @@ class Event(db.Model):
     event_type = db.Column(db.Enum(EventType))
     subjects = db.Column(db.Enum(EventType))
     date = db.Column(db.DateTime)
-    participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
-    participant_assoc = db.relationship("EventAttendance", back_populates="event")
+    # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
+    # participant_assoc = db.relationship("EventAttendance", back_populates="event")
 
     # participant_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), nullable=True)
     # attended = db.relationship("Contact", back_populates="events_attended"),

@@ -28,7 +28,7 @@ def create_app(test_config=None):
     from app.models.indicator import Indicator
     from app.models.org import Org
     from app.models.work_focus import WorkFocus
-    from app.models.event_attendance import EventAttendance
+    # from app.models.event_attendance import EventAttendance
 
 
     db.init_app(app)
