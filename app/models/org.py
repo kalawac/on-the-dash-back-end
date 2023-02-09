@@ -2,6 +2,8 @@ from app import db
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from .types.org_sector import OrgSector
+from .work_focus import WorkFocus
+from app.routes.utils import validate_instance
 
 # PostgreSQL Array of Enum has bug. Switched to relationship with model WorkFocus.
 
@@ -24,9 +26,9 @@ class Org(db.Model):
             org_sector=data_dict["sector"],
             )
 
-        if data_dict.get("foci"):
+        if len(data_dict.get("foci", [])) >= 1:
             for wf_id in data_dict["foci"]:
-                validate_item(WorkFocus, wf_id)
+                validate_instance(WorkFocus, wf_id)
             
             new_org.foci = data_dict["foci"]
 

@@ -135,12 +135,12 @@ def test_contact_repr(client):
 def test_create_org_no_work_focus(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "org_sector": 2
+            "sector": 2
             }
 
     result = Org(
         name=test_response["name"],
-        org_sector=test_response["org_sector"],
+        org_sector=test_response["sector"],
         )
 
     db.session.add(result)
@@ -149,22 +149,18 @@ def test_create_org_no_work_focus(client):
     assert result.id
     assert result.name == "Babies for Boomerangs"
     assert result.org_sector == 2
-    assert result.work_focus == []
+    assert result.foci == None
 
 
 # @pytest.mark.skip()
-def test_create_org_empty_work_focus(client):
+def test_create_org_from_dict_empty_work_focus(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "org_sector": 2,
-            "work_focus": []
+            "sector": 2,
+            "foci": []
             }
 
-    result = Org(
-        name=test_response["name"],
-        org_sector=test_response["org_sector"],
-        work_focus=test_response["work_focus"],
-        )
+    result = Org.new_from_dict(test_response)
 
     db.session.add(result)
     db.session.commit()
@@ -172,27 +168,6 @@ def test_create_org_empty_work_focus(client):
     assert result.id
     assert result.name == "Babies for Boomerangs"
     assert result.org_sector == 2
-    assert result.work_focus == []
+    assert result.foci == None
 
-
-# @pytest.mark.skip()
-def test_create_org_one_work_focus(client):
-    test_response = {
-            "name": "Thriving",
-            "org_sector": 7,
-            "work_focus": [1]
-            }
-
-    result = Org(
-        name=test_response["name"],
-        org_sector=test_response["org_sector"],
-        work_focus=test_response["work_focus"],
-        )
-
-    db.session.add(result)
-    db.session.commit()
-
-    assert result.id
-    assert result.name == "Thriving"
-    assert result.org_sector == 7
-    assert result.work_focus == [1]
+# need routes to write models with relationships
