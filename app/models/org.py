@@ -1,5 +1,5 @@
 from app import db
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from .types.org_sector import OrgSector
 from .types.work_focus import WF
@@ -9,7 +9,7 @@ class Org(db.Model):
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
-    work_focus = db.Column(db.Enum(WF))
+    work_focus = db.Column(db.ARRAY(db.Enum("WF", name="wf_enum")))
     contacts = db.relationship("Contact", back_populates="orgs")
 
     @classmethod

@@ -1,8 +1,8 @@
-"""creating initial models
+"""initial models
 
-Revision ID: c93ef3bf8b8d
+Revision ID: 4f3c3be0bc84
 Revises: 
-Create Date: 2023-02-08 14:22:26.031056
+Create Date: 2023-02-08 19:40:54.238937
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'c93ef3bf8b8d'
+revision = '4f3c3be0bc84'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,7 +43,7 @@ def upgrade():
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('org_sector', sa.Enum('ACADEMIA', 'NGO', 'GOVT', 'MEDIA', 'BUSINESS', 'CSR', 'SOC_ENT', 'IDP', 'OTHER', name='orgsector'), nullable=True),
-    sa.Column('work_focus', sa.Enum('INDIGENOUS', 'LGBTI', 'RELIGIOUS_FREEDOM', 'WOMENS_RIGHTS', 'OTHER', name='wf'), nullable=True),
+    sa.Column('work_focus', sa.ARRAY(sa.Enum('WF', name='wf_enum')), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
