@@ -127,3 +127,19 @@ def test_contact_repr(client):
     result = f'{new_contact} is from Hong Kong'
 
     assert result == "<Contact 'Agnes Chow'> is from Hong Kong"
+
+def test_create_org(client):
+    work_focus = WF(4)
+
+    test_response = {
+        "name": "Org 1",
+        "sector": 2,
+        "focus": (work_focus,),
+    }
+
+    result = Org.new_from_dict(test_response)
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
