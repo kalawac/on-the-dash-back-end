@@ -26,8 +26,8 @@ def create_app(test_config=None):
     from app.models.contact import Contact
     from app.models.event import Event
     from app.models.indicator import Indicator
-    from app.models.org import Org
-    from app.models.event_attendance import EventAttendance
+    from app.models.org_copy import Org
+    # from app.models.event_attendance import EventAttendance
 
 
     db.init_app(app)
