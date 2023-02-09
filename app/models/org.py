@@ -10,9 +10,9 @@ class Org(db.Model):
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
-    # foci = db.Column(db.Integer, db.ForeignKey('work_focus.id'))
-    # focus_rel = db.relationship("WorkFocus", back_populates="orgs")
-    # contacts = db.relationship("Contact", back_populates="orgs")
+    foci = db.Column(db.Integer, db.ForeignKey('work_focus.id'))
+    focus_rel = db.relationship("WorkFocus", back_populates="orgs")
+    contacts = db.relationship("Contact", back_populates="orgs")
 
     def __repr__(self):
         return '<Org %r>' % self.name
