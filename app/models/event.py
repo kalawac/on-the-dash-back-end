@@ -8,7 +8,7 @@ class Event(db.Model):
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     event_type = db.Column(db.Enum(EventType))
-    subjects = db.Column(db.Enum(EventType))
+    subjects = db.Column(db.Enum(EventType)) # needs to be relationship or array of enum
     date = db.Column(db.DateTime)
     participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
     participant_assoc = db.relationship("EventAttendance", back_populates="event")
@@ -20,26 +20,24 @@ class Event(db.Model):
 
     @classmethod
     def new_from_dict(cls, data_dict):
-        new_org = cls(
+        return cls(
             name=data_dict["name"], 
-            work_focus=data_dict["work_focus"], 
+            event_type=data_dict["type"], 
+            subjects=data_dict["subjects"], 
+            date=data_dict["date"], 
             )
 
-        if len(data_dict.get("contact_ids", [])) >= 1:
-            new_org.contact_ids = data_dict["contact_ids"]
-        
-        return new_org
-
     def to_dict(self):
-        org_dict = {
-                "id": self.id,
+        event_dict = {
                 "name": self.name,
-                "work_focus": self.work_focus,
-                "contacts": [],
+                "type": self.event_type,
+                "subjects": self.subjects,
+                "date": self.date,
+                "participants": []
             }
         
-        if contact_ids:
-            for contact in self.contacts:
+        if self.participants:
+            for participant in self.participants:
                 contact_dict = dict(
                     id = contact.id,
                     fname = contact.fname,
@@ -47,7 +45,9 @@ class Event(db.Model):
                     age = contact.age,
                     gender = contact.gender
                 )
-                org_dict["contacts"].append(contact_dict)
+                event_dict["participants"].append(contact_dict)
+        
+        return event_dict
 
 
 

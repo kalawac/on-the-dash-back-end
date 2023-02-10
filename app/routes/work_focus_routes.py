@@ -49,23 +49,25 @@ def get_all_work_foci():
     wf_query = WorkFocus.query
 
     if sort_query:
-        if sort_query == "asc":
-            wf_query = wf_query.order_by(id.asc())
-        elif sort_query == "desc":
-            wf_query = wf_query.order_by(id.desc())
+        if sort_query == "desc":
+            wf_query = wf_query.order_by(WorkFocus.id.desc())
+        elif sort_query == "asc":
+            wf_query = wf_query.order_by(WorkFocus.id)
 
-        if sort_query == "asc-label":
-            wf_query = wf_query.order_by(label.asc())
-        elif sort_query == "desc-label":
-            wf_query = wf_query.order_by(label.desc())
+        if sort_query == "label":
+            wf_query = wf_query.order_by(WorkFocus.label)
+        elif sort_query == "label-desc":
+            wf_query = wf_query.order_by(WorkFocus.label.desc())
+    else:
+        wf_query = wf_query.order_by(WorkFocus.id)
 
     if label_query:
-        wf_query = wf_query.filter_by(label.contains(label_query))
+        wf_query = wf_query.filter_by(WorkFocus.label.contains(label_query))
     
     if id_query:
-        wf_query = wf_query.filter_by(id=id_query)
+        wf_query = wf_query.filter_by(WorkFocus.id==id_query)
 
-    foci = WorkFocus.query.all()
+    foci = wf_query.all()
 
     if not foci:
         return jsonify([])
@@ -98,4 +100,4 @@ def delete_card(id):
     wf = validate_instance(WorkFocus, id)
     db.session.delete(wf)
     db.session.commit()
-    return make_response({"message": f"<WorkFocus.{wf.label}: {id}> deleted"}, 200)
+    return make_response({"message": f"<WorkFocus.{wf.label}: {id}> successfully deleted"}, 200)

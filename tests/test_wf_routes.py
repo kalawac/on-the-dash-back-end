@@ -1,7 +1,6 @@
 import pytest
 from werkzeug.exceptions import HTTPException
 from app import db
-from app.models.work_focus import WorkFocus
 
 def test_get_all_wf_no_records(client):
     response = client.get("wf")
@@ -79,4 +78,4 @@ def test_delete_wf(client, initial_work_foci):
     response_body = response.get_json()
 
     assert response.status_code == 200
-    assert response_body["message"] == '<WorkFocus.RELIGIOUS_FREEDOM: 3> deleted'
+    assert response_body["message"] == '<WorkFocus.RELIGIOUS_FREEDOM: 3> successfully deleted'
