@@ -84,7 +84,7 @@ def five_contacts(client):
         "gender": 1,
     })
 
-    db.session.add_all([contact1, contact2, contact3])
+    db.session.add_all([contact1, contact2, contact3, contact4, contact5])
     db.session.commit()
 
 
@@ -175,12 +175,22 @@ def three_events(client):
 
 @pytest.fixture
 def four_contacts_with_orgs_events(client, three_orgs, one_event):
+    org_ids = []
+    orgs = Org.query.all()
+
+    for org in orgs:
+        org_ids.append(org.id)
+
+    o1 = org_ids[0]
+    o2 = org_ids[1]
+    o3 = org_ids[2]
+
     contact1 = Contact.new_from_dict({
         "fname": "Nemonte",
         "lname": "Nenquimo",
         "age": 37,
         "gender": 1,
-        "orgs": [1]
+        "orgs": [o1]
     })
 
     contact2 = Contact.new_from_dict({
@@ -195,7 +205,7 @@ def four_contacts_with_orgs_events(client, three_orgs, one_event):
         "lname": "Seacole",
         "age": 52,
         "gender": 1,
-        "orgs": [3]
+        "orgs": [o3]
     })
 
     contact4 = Contact.new_from_dict({
@@ -203,7 +213,7 @@ def four_contacts_with_orgs_events(client, three_orgs, one_event):
         "lname": "Bentley",
         "age": 26,
         "gender": 2,
-        "orgs": [2,3]
+        "orgs": [o2, o3]
     })
     
     db.session.add_all([contact1, contact2, contact3, contact4])

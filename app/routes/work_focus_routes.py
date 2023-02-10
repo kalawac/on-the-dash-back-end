@@ -93,7 +93,7 @@ def update_work_focus_label(id):
 
 # don't make a button on this on FE - could mess up the database
 @bp.route("/<id>", methods=["DELETE"])
-def delete_card(id):
+def delete_work_focus_item(id):
     wf = validate_instance(WorkFocus, id)
     db.session.delete(wf)
     db.session.commit()

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_uuid import FlaskUUID
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
@@ -12,6 +13,7 @@ load_dotenv()
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    FlaskUUID(app)
 
     if not test_config:
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

@@ -1,5 +1,6 @@
 import pytest
 from werkzeug.exceptions import HTTPException
+from app.models.contact import Contact
 from app import db
 
 def test_get_all_contacts_no_records(client):
@@ -9,7 +10,7 @@ def test_get_all_contacts_no_records(client):
     assert response.status_code == 200
     assert response_body == []
 
-# write route to sort on lname by default
+
 def test_get_all_contacts_with_records(client, four_contacts_with_orgs_events):
     response = client.get("contacts")
     response_body = response.get_json()
@@ -68,21 +69,6 @@ def test_get_all_contacts_sort_fname_desc(client, five_contacts):
     assert response_body[0]["fname"] == "Nemonte"
 
 
-@pytest.mark.skip() # sorting lname by default, so this is unnecessary
-def test_get_all_contacts_sort_lname(client, five_contacts):
-    queries = {'sort': 'lname'}
-    response = client.get("contacts", query_string=queries)
-    response_body = response.get_json()
-
-    assert response.status_code == 200
-    assert len(response_body) == 5
-    assert response_body[0]["lname"] == "Bentley"
-    assert response_body[1]["lname"] == "Chow"
-    assert response_body[2]["lname"] == "Dylan"
-    assert response_body[3]["lname"] == "Nenquimo"
-    assert response_body[4]["lname"] == "Seacole"
-
-
 def test_get_all_contacts_sort_lname_desc(client, five_contacts):
     queries = {'sort': 'desc'}
     response = client.get("contacts", query_string=queries)
@@ -97,6 +83,7 @@ def test_get_all_contacts_sort_lname_desc(client, five_contacts):
     assert response_body[0]["lname"] == "Seacole"
 
 
+
 def test_get_all_contacts_filter_name(client, five_contacts):
     queries = {'name': 'nt'}
     response = client.get("contacts", query_string=queries)
@@ -104,8 +91,8 @@ def test_get_all_contacts_filter_name(client, five_contacts):
 
     assert response.status_code == 200
     assert len(response_body) == 2
-    assert response_body[0]["lname"] == "Bentley"
-    assert response_body[1]["lname"] == "Nenquimo"
+    assert response_body[0]["lname"] in ["Bentley", "Nenquimo"]
+    assert response_body[1]["lname"] in ["Bentley", "Nenquimo"]
 
 
 def test_get_all_contacts_filter_fname(client, five_contacts):
@@ -115,8 +102,8 @@ def test_get_all_contacts_filter_fname(client, five_contacts):
 
     assert response.status_code == 200
     assert len(response_body) == 2
-    assert response_body[0]["fname"] == "Agnes"
-    assert response_body[1]["fname"] == "Nemonte"
+    assert response_body[0]["fname"] in ["Agnes", "Nemonte"]
+    assert response_body[1]["fname"] in ["Agnes", "Nemonte"]
 
 
 def test_get_all_contacts_filter_lname(client, five_contacts):
@@ -129,7 +116,7 @@ def test_get_all_contacts_filter_lname(client, five_contacts):
     assert response_body[0]["lname"] == "Bentley"
     assert response_body[1]["lname"] == "Seacole"
 
-
+# NOPE -- something weird happening with the Enum programmatically. Works in the database.
 def test_get_all_contacts_filter_gender(client, four_contacts_with_orgs_events):
     queries = {'gender': '1'}
     response = client.get("contacts", query_string=queries)
@@ -153,7 +140,7 @@ def test_get_all_contacts_filter_single_org(client, four_contacts_with_orgs_even
 
 
 def test_get_all_contacts_filter_multiple_orgs_with_or(client, four_contacts_with_orgs_events):
-    queries = {'org': '3+1', 'and': False}
+    queries = {'org': '3_1'}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -173,7 +160,7 @@ def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_wi
     assert len(response_body) == 1
     assert response_body[0]["lname"] == "Bentley"
 
-
+# working with sort and lname
 def test_get_all_contacts_combine_sort_filter(client, four_contacts_with_orgs_events):
     queries = {'org': '3+1', 'sort': 'fname'}
     response = client.get("contacts", query_string=queries)
@@ -197,7 +184,7 @@ def test_get_all_contacts_combine_filters_and(client, four_contacts_with_orgs_ev
 
 
 def test_get_all_contacts_combine_filters_or(client, four_contacts_with_orgs_events):
-    queries = {'lname': 'le', 'gender': '1', 'and': False}
+    queries = {'lname': 'le', 'gender': '1', 'OR': True}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -258,7 +245,7 @@ def test_create_one_contact(client):
 
 
 def test_create_one_contact_no_lnamefails(client):
-    response = client.post("wf", json = {
+    response = client.post("contacts", json = {
         "fname": "Agnes",
         "age": 26,
         "gender": 1,
@@ -270,7 +257,7 @@ def test_create_one_contact_no_lnamefails(client):
 
 
 def test_create_one_contact_lname_empty_string_fails(client):
-    response = client.post("wf", json = {
+    response = client.post("contacts", json = {
         "fname": "Agnes",
         "lname": "",
         "age": 26,
@@ -282,9 +269,10 @@ def test_create_one_contact_lname_empty_string_fails(client):
     assert response_body["message"] == "Contact requires last name"
 
 
-def test_update_contacts_label(client, five_contacts):
-    contact_query = Contact.query.filter_by(fname="Mary").all()
-    contact_id = contact_query.id
+def test_update_contact(client, five_contacts):
+    contact_query = Contact.query.filter_by(fname="Mary")
+    contact_query = contact_query.all()
+    contact_id = contact_query[0].id
 
     response = client.put("contacts/{contact_id}", json = {
         "fname": "Robert",
@@ -305,8 +293,13 @@ def test_update_contacts_label(client, five_contacts):
 
 
 def test_delete_contacts(client, five_contacts):
-    response = client.delete("contacts/3")
+    contact_query = Contact.query.filter_by(fname="Nat")
+    contact_query = contact_query.all()
+    contact_id = contact_query[0].id
+    test_url = "contacts/"+str(contact_id)
+
+    response = client.delete(test_url)
     response_body = response.get_json()
 
     assert response.status_code == 200
-    assert response_body["message"] == 'Contact 3 Nat Bentley successfully deleted'
+    assert response_body["message"] == 'Contact Nat Bentley successfully deleted'

@@ -1,100 +1,179 @@
 from app import db
 from app.models.contact import Contact
 from flask import Blueprint, jsonify, request, make_response, abort
+from .utils import validate_instance, append_dicts_to_list
+from app.models.types.gender import Gender
 
 bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 
 @bp.route("", methods=["POST"], strict_slashes=False)
-def create_wf_item():
+def create_contact():
     request_body = request.get_json()
 
+    if not request_body.get("lname") or request_body["lname"]=="":
+        abort(make_response({"message": "Contact requires last name"}, 400))
 
-    if not request_body["label"] or request_body["label"]=="":
-        abort(make_response({"message": "Please provide a label"}, 400))
+    new_contact = Contact.new_from_dict(request_body)
 
-    new_wf = WorkFocus(label=request_body["label"])
-
-    db.session.add(new_wf)
+    db.session.add(new_contact)
     db.session.commit()
 
-    return make_response(jsonify(new_card.to_dict()), 201)
-
-
-# no button on FE - delete before freeze?
-@bp.route("/initial", methods=["POST"])
-def create_initial_wf_items():
-    db.session.add_all([
-        WorkFocus(label=INDIGENOUS),
-        WorkFocus(label=LGBTI),
-        WorkFocus(label=RELIGIOUS_FREEDOM),
-        WorkFocus(label=WOMENS_RIGHTS),
-        WorkFocus(label=OTHER)
-    ])
-    db.session.commit()
-
-    foci = WorkFocus.query.all()
-
-    wf_response = append_dicts_to_list(foci)
-
-    return make_response(jsonify(wf_response), 201)
+    return make_response(jsonify(new_contact.to_dict()), 201)
 
 
 @bp.route("", methods=["GET"], strict_slashes=False)
-def get_all_work_foci():
+def get_all_contacts():
     sort_query = request.args.get("sort")
-    label_query = request.args.get("label")
-    id_query = request.args.get("id")
+    name_query = request.args.get("name")
+    fname_query = request.args.get("fname")
+    lname_query = request.args.get("lname")
+    gender_query = request.args.get("gender")
+    org_query = request.args.get("org")
+    logical_or = request.args.get("OR")
 
-    wf_query = WorkFocus.query
+    contacts_query = Contact.query
+
+    if logical_or:
+        existing_query = False
+
+        if fname_query:
+            contacts_query = contacts_query.filter(Contact.fname.ilike(f'%{fname_query}%'))
+            existing_query = True
+        
+        if lname_query:
+            if existing_query:
+                q_lname = Contact.query.filter(Contact.lname.ilike(f'%{lname_query}%'))
+                contacts_query = contacts_query.union(q_lname)
+            else:
+                contacts_query = contacts_query.filter(Contact.lname.ilike(f'%{lname_query}%'))
+                existing_query = True
+        
+        if name_query:
+            qfn = Contact.query.filter(Contact.fname.ilike(f'%{name_query}%'))
+            qln = Contact.query.filter(Contact.lname.ilike(f'%{name_query}%'))
+
+            if existing_query:
+                q_name = qfn.union(qln)
+                contacts_query = contacts_query.union(q_name)
+            else:
+                contacts_query = qfn.union(qln)
+                existing_query = True
+        
+        if gender_query:
+            if existing_query:
+                q_gender = Contact.query.filter(Contact.gender.ilike(f'%{gender_query}%'))
+                contacts_query = contacts_query.union(q_gender)
+            else:
+                contacts_query = contacts_query.filter(Contact.gender.ilike(f'%{gender_query}%'))
+                existing_query = True
+
+        if org_query:
+            if org_query.find("+") > -1:
+                query_items = org_query.split["+"]
+                item_query = Contact.query
+                for item in query_items:
+                    item_query = item_query.filter_by(org=item)
+                
+                if existing_query:
+                    contacts_query = contacts_query.union(item_query)
+                else:
+                    contacts_query = item_query
+            elif org_query.find("_") > -1:
+                query_items = org_query.split["_"]
+                for item in query_items:
+                    item_query = Contact.query.filter_by(org=item)
+                    contacts_query = contacts_query.union(item_query)
+            else:
+                if existing_query:
+                    q_org = contacts_query.filter_by(org=org_query)
+                    contacts_query = contacts_query.union(q_org)
+                else:
+                    contacts_query = contacts_query.filter_by(org=org_query)
+
+    else:
+        if fname_query:
+            contacts_query = contacts_query.filter(Contact.fname.ilike(f'%{fname_query}%'))
+        
+        if lname_query:
+            contacts_query = contacts_query.filter(Contact.lname.ilike(f'%{lname_query}%'))
+        
+        if name_query:
+            qfn = Contact.query.filter(Contact.fname.ilike(f'%{name_query}%'))
+            qln = Contact.query.filter(Contact.lname.ilike(f'%{name_query}%'))
+            contacts_query = qfn.union(qln)
+        
+        if gender_query:
+            try:
+                gender_query = int(gender_query)
+            except ValueError:
+                abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
+
+            gender_value = Gender(gender_query)
+            contacts_query = contacts_query.filter_by(gender=gender_value)
+
+        if org_query:
+            if org_query.find("+") > -1:
+                query_items = org_query.split["+"]
+                for item in query_items:
+                    contacts_query = contacts_query.filter_by(org=item)
+            elif org_query.find("_") > -1:
+                query_items = org_query.split["_"]
+                for item in query_items:
+                    item_query = Contact.query.filter_by(org=item)
+                    contacts_query = contacts_query.union(item_query)
+            else:
+                contacts_query = contacts_query.filter_by(org=org_query)
 
     if sort_query:
-        if sort_query == "asc":
-            wf_query = wf_query.order_by(id.asc())
-        elif sort_query == "desc":
-            wf_query = wf_query.order_by(id.desc())
+        if sort_query == "desc":
+            contacts_query = contacts_query.order_by(Contact.lname.desc())
 
-        if sort_query == "asc-label":
-            wf_query = wf_query.order_by(label.asc())
-        elif sort_query == "desc-label":
-            wf_query = wf_query.order_by(label.desc())
+        if sort_query == "fname":
+            contacts_query = contacts_query.order_by(Contact.fname)
+        elif sort_query == "fname-desc":
+            contacts_query = contacts_query.order_by(Contact.fname.desc())
+    else:
+        contacts_query = contacts_query.order_by(Contact.lname)
 
-    if label_query:
-        wf_query = wf_query.filter_by(label.contains(label_query))
-    
-    if id_query:
-        wf_query = wf_query.filter_by(id=id_query)
+    contacts = contacts_query.all()
 
-    foci = WorkFocus.query.all()
-
-    if not foci:
+    if not contacts:
         return jsonify([])
 
-    wf_response = append_dicts_to_list(foci)
+    contacts_response = append_dicts_to_list(contacts)
 
-    return jsonify(wf_response)
-
-
-@bp.route("/<id>", methods=["GET"], strict_slashes=False)
-def get_work_focus_item(id):
-    wf = validate_instance(WorkFocus, id)
-    return wf.to_dict()
+    return jsonify(contacts_response)
 
 
-# use judiciously - include warning that it will reclassify all items, past and present
-@bp.route("/<id>", methods=["PATCH"])
-def update_work_focus_label(id):
-    wf = validate_instance(WorkFocus, id)
+@bp.route("/<uuid:id>", methods=["GET"], strict_slashes=False)
+def get_contact(id):
+    contact = validate_instance(Contact, id)
+    return contact.to_dict()
+
+
+@bp.route("/<uuid:id>", methods=["PUT"])
+def update_contact(id):
+    print(id)
+    contact = validate_instance(Contact, id)
     request_body = request.get_json()
     
-    wf.label = request_body["label"]
+    if not request_body.get("lname") or request_body["lname"]=="":
+        abort(make_response({"message": "Contact requires last name"}, 400))
+
+    contact.fname = request_body["fname"]
+    contact.lname = request_body["lname"]
+    contact.age = request_body["age"] if request_body["age"] else 0
+    contact.gender = request_body["gender"]
+
+    db.session.add(contact)
     db.session.commit()
-    return jsonify(card.to_dict())
+
+    return jsonify(contact.to_dict())
 
 
-# don't make a button on this on FE - could mess up the database
-@bp.route("/<id>", methods=["DELETE"])
-def delete_card(id):
-    wf = validate_instance(WorkFocus, id)
-    db.session.delete(wf)
+@bp.route("/<uuid:id>", methods=["DELETE"])
+def delete_contact(id):
+    contact = validate_instance(Contact, id)
+    db.session.delete(contact)
     db.session.commit()
-    return make_response(f"<Work Focus '{wf.label}': {id}> deleted", 200)
+    return make_response({"message": f"Contact {contact.fname} {contact.lname} successfully deleted"}, 200)
