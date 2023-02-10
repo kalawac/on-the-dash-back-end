@@ -5,6 +5,7 @@ from app.models.contact import Contact
 from app.models.org import Org
 from app.models.work_focus import WorkFocus
 
+# need routes to write models with relationships
 
 def test_create_contact_no_orgs_no_events(client):
     test_response = {
@@ -170,4 +171,16 @@ def test_create_org_from_dict_empty_work_focus(client):
     assert result.org_sector == 2
     assert result.foci == None
 
-# need routes to write models with relationships
+# @pytest.mark.skip()
+def test_create_work_focus(client):
+    test_response = {
+        "label": "INDIGENOUS",
+        }
+
+    result = WorkFocus(label=test_response["label"])
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
+    assert result.label == "INDIGENOUS"

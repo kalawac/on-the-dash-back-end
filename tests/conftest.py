@@ -2,6 +2,9 @@ import pytest
 from app import create_app
 from app import db
 from flask.signals import request_finished
+from app.models.contact import Contact
+from app.models.org import Org
+from app.models.work_focus import WorkFocus
 
 
 @pytest.fixture
@@ -28,7 +31,7 @@ def client(app):
 
 
 @pytest.fixture
-def one_contact(app):
+def one_contact(client):
     contact_dict = {
         "fname": "Nemonte",
         "lname": "Nenquimo",
@@ -42,7 +45,8 @@ def one_contact(app):
     db.session.commit()
 
 
-def five_contacts(app):
+@pytest.fixture
+def five_contacts(client):
     contact1 = Contact.new_from_dict({
         "fname": "Nemonte",
         "lname": "Nenquimo",
@@ -81,11 +85,12 @@ def five_contacts(app):
     db.session.add_all([contact1, contact2, contact3])
     db.session.commit()
 
-def one_org(app):
+
+@pytest.fixture
+def one_org(client):
     org_dict = {
         "name": "Abacus Inc.",
-        "org_sector": 5,
-        "work_focus": [99],
+        "sector": 5,
     }
 
     new_org = Org.new_from_dict(org_dict)
@@ -93,22 +98,34 @@ def one_org(app):
     db.session.add(new_org)
     db.session.commit()
 
-def three_orgs(app):
+
+@pytest.fixture
+def three_orgs(client):
     db.session.add_all([
         Org.new_from_dict({
             "name": "Babies for Boomerangs",
-            "org_sector": 2,
-            "work_focus": [4]
+            "sector": 2,
             }),
         Org.new_from_dict({
             "name": "Catch Me!",
-            "org_sector": 2,
-            "work_focus": []
+            "sector": 2,
             }),
         Org.new_from_dict({
             "name": "Thriving",
-            "org_sector": 7,
-            "work_focus": [1, 2, 4]
+            "sector": 7,
             }),
     ])
+    db.session.commit()
+
+
+@pytest.fixture
+def initial_work_foci(client):
+    
+    wf1 = WorkFocus(label='INDIGENOUS')
+    wf2 = WorkFocus(label='LGBTI')
+    wf3 = WorkFocus(label='RELIGIOUS_FREEDOM')
+    wf4 = WorkFocus(label='WOMENS_RIGHTS')
+    wf5 = WorkFocus(label='OTHER')
+    
+    db.session.add_all([wf1, wf2, wf3, wf4, wf5])
     db.session.commit()

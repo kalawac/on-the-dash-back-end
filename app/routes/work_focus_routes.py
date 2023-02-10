@@ -18,18 +18,18 @@ def create_wf_item():
     db.session.add(new_wf)
     db.session.commit()
 
-    return make_response(jsonify(new_card.to_dict()), 201)
+    return make_response(jsonify(new_wf.to_dict()), 201)
 
 
 # no button on FE - delete before freeze?
 @bp.route("/initial", methods=["POST"])
 def create_initial_wf_items():
     db.session.add_all([
-        WorkFocus(label=INDIGENOUS),
-        WorkFocus(label=LGBTI),
-        WorkFocus(label=RELIGIOUS_FREEDOM),
-        WorkFocus(label=WOMENS_RIGHTS),
-        WorkFocus(label=OTHER)
+        WorkFocus(label='INDIGENOUS'),
+        WorkFocus(label='LGBTI'),
+        WorkFocus(label='RELIGIOUS_FREEDOM'),
+        WorkFocus(label='WOMENS_RIGHTS'),
+        WorkFocus(label='OTHER')
     ])
     db.session.commit()
 
@@ -89,7 +89,7 @@ def update_work_focus_label(id):
     
     wf.label = request_body["label"]
     db.session.commit()
-    return jsonify(card.to_dict())
+    return jsonify(wf.to_dict())
 
 
 # don't make a button on this on FE - could mess up the database
@@ -98,4 +98,4 @@ def delete_card(id):
     wf = validate_instance(WorkFocus, id)
     db.session.delete(wf)
     db.session.commit()
-    return make_response(f"<Work Focus '{wf.label}': {id}> deleted", 200)
+    return make_response({"message": f"<WorkFocus.{wf.label}: {id}> deleted"}, 200)
