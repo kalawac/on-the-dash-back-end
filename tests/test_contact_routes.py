@@ -84,7 +84,7 @@ def test_get_all_contacts_sort_lname(client, five_contacts):
 
 
 def test_get_all_contacts_sort_lname_desc(client, five_contacts):
-    queries = {'sort': 'lname-desc'}
+    queries = {'sort': 'desc'}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -172,6 +172,18 @@ def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_wi
     assert response.status_code == 200
     assert len(response_body) == 1
     assert response_body[0]["lname"] == "Bentley"
+
+
+def test_get_all_contacts_combine_sort_filter(client, four_contacts_with_orgs_events):
+    queries = {'org': '3+1', 'sort': 'fname'}
+    response = client.get("contacts", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 3
+    assert response_body[0]["fname"] == "Mary"
+    assert response_body[1]["fname"] == "Nat"
+    assert response_body[2]["fname"] == "Nemonte"
 
 
 def test_get_one_contact(client, one_contact):
