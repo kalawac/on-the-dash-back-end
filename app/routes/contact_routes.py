@@ -60,11 +60,18 @@ def get_all_contacts():
                 existing_query = True
         
         if gender_query:
+            try:
+                gender_query = int(gender_query)
+            except ValueError:
+                abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
+
+            gender_value = Gender(gender_query)
+
             if existing_query:
-                q_gender = Contact.query.filter(Contact.gender.ilike(f'%{gender_query}%'))
+                q_gender = Contact.query.filter_by(gender=gender_value)
                 contacts_query = contacts_query.union(q_gender)
             else:
-                contacts_query = contacts_query.filter(Contact.gender.ilike(f'%{gender_query}%'))
+                contacts_query = contacts_query.filter_by(gender=gender_value)
                 existing_query = True
 
         if org_query:

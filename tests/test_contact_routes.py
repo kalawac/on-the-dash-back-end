@@ -116,7 +116,7 @@ def test_get_all_contacts_filter_lname(client, five_contacts):
     assert response_body[0]["lname"] == "Bentley"
     assert response_body[1]["lname"] == "Seacole"
 
-# NOPE -- something weird happening with the Enum programmatically. Works in the database.
+
 def test_get_all_contacts_filter_gender(client, four_contacts_with_orgs_events):
     queries = {'gender': '1'}
     response = client.get("contacts", query_string=queries)
@@ -127,9 +127,9 @@ def test_get_all_contacts_filter_gender(client, four_contacts_with_orgs_events):
     assert response_body[0]["lname"] == "Nenquimo"
     assert response_body[1]["lname"] == "Seacole"
 
-
+# this are going to be painful to test without knowing the uuids
 def test_get_all_contacts_filter_single_org(client, four_contacts_with_orgs_events):
-    queries = {'org': '3'}
+    queries = {'org': '3'} # uuid, not 3!
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -140,7 +140,7 @@ def test_get_all_contacts_filter_single_org(client, four_contacts_with_orgs_even
 
 
 def test_get_all_contacts_filter_multiple_orgs_with_or(client, four_contacts_with_orgs_events):
-    queries = {'org': '3_1'}
+    queries = {'org': '3_1'} # convert to uuids
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -152,7 +152,7 @@ def test_get_all_contacts_filter_multiple_orgs_with_or(client, four_contacts_wit
 
 
 def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_with_orgs_events):
-    queries = {'org': '2+3'}
+    queries = {'org': '2+3'} # convert to uuids
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -162,7 +162,7 @@ def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_wi
 
 # working with sort and lname
 def test_get_all_contacts_combine_sort_filter(client, four_contacts_with_orgs_events):
-    queries = {'org': '3+1', 'sort': 'fname'}
+    queries = {'org': '3+1', 'sort': 'fname'} # convert to uuids
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
