@@ -51,8 +51,6 @@ def get_all_work_foci():
     if sort_query:
         if sort_query == "desc":
             wf_query = wf_query.order_by(WorkFocus.id.desc())
-        elif sort_query == "asc":
-            wf_query = wf_query.order_by(WorkFocus.id)
 
         if sort_query == "label":
             wf_query = wf_query.order_by(WorkFocus.label)
@@ -62,10 +60,10 @@ def get_all_work_foci():
         wf_query = wf_query.order_by(WorkFocus.id)
 
     if label_query:
-        wf_query = wf_query.filter_by(WorkFocus.label.contains(label_query))
+        wf_query = wf_query.filter(WorkFocus.label.contains(label_query))
     
     if id_query:
-        wf_query = wf_query.filter_by(WorkFocus.id==id_query)
+        wf_query = wf_query.filter_by(id=id_query)
 
     foci = wf_query.all()
 

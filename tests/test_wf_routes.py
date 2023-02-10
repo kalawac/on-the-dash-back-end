@@ -26,6 +26,101 @@ def test_get_all_wf_with_records(client, initial_work_foci):
     assert response_body[3]["label"] == "WOMENS_RIGHTS"
     assert response_body[4]["label"] == "OTHER"
 
+
+def test_get_all_wf_sort_desc(client, initial_work_foci):
+    queries = {'sort': 'desc'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 5
+    assert response_body[0]["id"] == 5
+    assert response_body[1]["id"] == 4
+    assert response_body[2]["id"] == 3
+    assert response_body[3]["id"] == 2
+    assert response_body[4]["id"] == 1
+    assert response_body[0]["label"] == "OTHER"
+    assert response_body[1]["label"] == "WOMENS_RIGHTS"
+    assert response_body[2]["label"] == "RELIGIOUS_FREEDOM"
+    assert response_body[3]["label"] == "LGBTI"
+    assert response_body[4]["label"] == "INDIGENOUS"
+
+
+def test_get_all_wf_sort_label(client, initial_work_foci):
+    queries = {'sort': 'label'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 5
+    assert response_body[0]["id"] == 1
+    assert response_body[1]["id"] == 2
+    assert response_body[2]["id"] == 5
+    assert response_body[3]["id"] == 3
+    assert response_body[4]["id"] == 4
+    assert response_body[0]["label"] == "INDIGENOUS"
+    assert response_body[1]["label"] == "LGBTI"
+    assert response_body[2]["label"] == "OTHER"
+    assert response_body[3]["label"] == "RELIGIOUS_FREEDOM"
+    assert response_body[4]["label"] == "WOMENS_RIGHTS"
+
+
+def test_get_all_wf_sort_label_desc(client, initial_work_foci):
+    queries = {'sort': 'label-desc'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 5
+    assert response_body[4]["id"] == 1
+    assert response_body[3]["id"] == 2
+    assert response_body[2]["id"] == 5
+    assert response_body[1]["id"] == 3
+    assert response_body[0]["id"] == 4
+    assert response_body[4]["label"] == "INDIGENOUS"
+    assert response_body[3]["label"] == "LGBTI"
+    assert response_body[2]["label"] == "OTHER"
+    assert response_body[1]["label"] == "RELIGIOUS_FREEDOM"
+    assert response_body[0]["label"] == "WOMENS_RIGHTS"
+
+
+def test_get_all_wf_filter_label(client, initial_work_foci):
+    queries = {'label': 'OM'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 2
+    assert response_body[0]["id"] == 3
+    assert response_body[0]["label"] == "RELIGIOUS_FREEDOM"
+    assert response_body[1]["id"] == 4
+    assert response_body[1]["label"] == "WOMENS_RIGHTS"
+
+
+def test_get_all_wf_filter_id(client, initial_work_foci):
+    queries = {'id': '4'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 1
+    assert response_body[0]["id"] == 4
+    assert response_body[0]["label"] == "WOMENS_RIGHTS"
+
+
+def test_get_all_wf_combine_sort_filter_label(client, initial_work_foci):
+    queries = {'sort': 'desc', 'label': 'OM'}
+    response = client.get("wf", query_string=queries)
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert len(response_body) == 2
+    assert response_body[1]["id"] == 3
+    assert response_body[1]["label"] == "RELIGIOUS_FREEDOM"
+    assert response_body[0]["id"] == 4
+    assert response_body[0]["label"] == "WOMENS_RIGHTS"
+
+
 def test_get_one_wf(client, initial_work_foci):
     response = client.get("wf/1")
     response_body = response.get_json()

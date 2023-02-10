@@ -174,7 +174,7 @@ def three_events(client):
 
 
 @pytest.fixture
-def three_contacts_with_orgs_events(client, three_orgs, one_event):
+def four_contacts_with_orgs_events(client, three_orgs, one_event):
     contact1 = Contact.new_from_dict({
         "fname": "Nemonte",
         "lname": "Nenquimo",
@@ -191,6 +191,14 @@ def three_contacts_with_orgs_events(client, three_orgs, one_event):
     })
 
     contact3 = Contact.new_from_dict({
+        "fname": "Mary",
+        "lname": "Seacole",
+        "age": 52,
+        "gender": 1,
+        "orgs": [3]
+    })
+
+    contact4 = Contact.new_from_dict({
         "fname": "Nat",
         "lname": "Bentley",
         "age": 26,
@@ -198,7 +206,7 @@ def three_contacts_with_orgs_events(client, three_orgs, one_event):
         "orgs": [2,3]
     })
     
-    db.session.add_all([contact1, contact2, contact3])
+    db.session.add_all([contact1, contact2, contact3, contact4])
     db.session.commit()
 
     participants = Contact.query.all()
