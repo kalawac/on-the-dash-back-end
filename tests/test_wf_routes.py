@@ -157,6 +157,26 @@ def test_create_one_wf(client):
     assert response_body["label"] == "Youth"
 
 
+def test_create_one_wf_no_label_fails(client):
+    response = client.post("wf", json = {
+        "lable": "Youth",
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "WorkFocus item requires label"
+
+
+def test_create_one_wf_label_empty_string_fails(client):
+    response = client.post("wf", json = {
+        "label": "",
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "WorkFocus item requires label"
+
+
 def test_update_wf_label(client, initial_work_foci):
     response = client.patch("wf/5", json = {
         "label": "Youth",
@@ -173,4 +193,4 @@ def test_delete_wf(client, initial_work_foci):
     response_body = response.get_json()
 
     assert response.status_code == 200
-    assert response_body["message"] == '<WorkFocus.RELIGIOUS_FREEDOM: 3> successfully deleted'
+    assert response_body["message"] == "<WorkFocus.RELIGIOUS_FREEDOM: 3> successfully deleted"

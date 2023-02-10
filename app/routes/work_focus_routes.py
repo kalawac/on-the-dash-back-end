@@ -9,9 +9,8 @@ bp = Blueprint("wf_bp", __name__, url_prefix="/wf")
 def create_wf_item():
     request_body = request.get_json()
 
-
-    if not request_body["label"] or request_body["label"]=="":
-        abort(make_response({"message": "Please provide a label"}, 400))
+    if not request_body.get("label") or request_body["label"]=="":
+        abort(make_response({"message": "WorkFocus item requires label"}, 400))
 
     new_wf = WorkFocus(label=request_body["label"])
 

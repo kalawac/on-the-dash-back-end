@@ -223,6 +223,31 @@ def test_create_one_contact(client):
     assert response_body["events"] == []
 
 
+def test_create_one_contact_no_lnamefails(client):
+    response = client.post("wf", json = {
+        "fname": "Agnes",
+        "age": 26,
+        "gender": 1,
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "Contact requires last name"
+
+
+def test_create_one_contact_lname_empty_string_fails(client):
+    response = client.post("wf", json = {
+        "fname": "Agnes",
+        "lname": "",
+        "age": 26,
+        "gender": 1,
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "Contact requires last name"
+
+
 def test_update_contacts_label(client, five_contacts):
     contact_query = Contact.query.filter_by(fname="Mary").all()
     contact_id = contact_query.id
