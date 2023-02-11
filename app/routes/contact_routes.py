@@ -7,10 +7,7 @@ import uuid
 
 bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 
-@bp.route("", methods=["POST"], strict_slashes=False)
-def create_contact():
-    request_body = request.get_json()
-
+def validate_request_body(request_body):
     if not request_body.get("lname"):
         abort(make_response({"message": "Contact requires last name"}, 400))
 
@@ -28,6 +25,13 @@ def create_contact():
             Gender[gender_data]
         except KeyError:
             abort(make_response({"message": "Invalid gender value"}, 400))
+
+
+@bp.route("", methods=["POST"], strict_slashes=False)
+def create_contact():
+    request_body = request.get_json()
+
+    validate_request_body(request_body)
 
     new_contact = Contact.new_from_dict(request_body)
 
@@ -176,12 +180,10 @@ def get_contact(id):
 
 @bp.route("/<uuid:id>", methods=["PUT"])
 def update_contact(id):
-    print(id)
     contact = validate_UUID(Contact, id)
     request_body = request.get_json()
     
-    if not request_body.get("lname") or request_body["lname"]=="":
-        abort(make_response({"message": "Contact requires last name"}, 400))
+    validate_request_body(request_body)
 
     contact.fname = request_body["fname"]
     contact.lname = request_body["lname"]
