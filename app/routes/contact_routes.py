@@ -81,13 +81,13 @@ def get_all_contacts():
             except ValueError:
                 abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
 
-            gender_value = Gender(gender_query)
+            gender_enum = Gender(gender_query)
 
             if existing_query:
-                q_gender = Contact.query.filter_by(gender=gender_value)
+                q_gender = Contact.query.filter_by(gender=gender_enum)
                 contacts_query = contacts_query.union(q_gender)
             else:
-                contacts_query = contacts_query.filter_by(gender=gender_value)
+                contacts_query = contacts_query.filter_by(gender=gender_enum)
                 existing_query = True
 
         if org_query:
@@ -131,8 +131,8 @@ def get_all_contacts():
             except ValueError:
                 abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
 
-            gender_value = Gender(gender_query)
-            contacts_query = contacts_query.filter_by(gender=gender_value)
+            gender_enum = Gender(gender_query)
+            contacts_query = contacts_query.filter_by(gender=gender_enum)
 
         if org_query:
             if org_query.find("+") > -1:
