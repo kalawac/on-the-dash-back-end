@@ -1,8 +1,9 @@
 from app import db
 from app.models.contact import Contact
 from flask import Blueprint, jsonify, request, make_response, abort
-from .utils import validate_instance, append_dicts_to_list
+from .utils import validate_UUID, append_dicts_to_list
 from app.models.types.gender import Gender
+import uuid
 
 bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 
@@ -10,8 +11,23 @@ bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 def create_contact():
     request_body = request.get_json()
 
-    if not request_body.get("lname") or request_body["lname"]=="":
+    if not request_body.get("lname"):
         abort(make_response({"message": "Contact requires last name"}, 400))
+
+    if (("fname" not in request_body) or ("age" not in request_body) or
+        ("gender" not in request_body)):
+        abort(make_response(
+            {"message": "Request body requires the following keys: 'fname', 'lname', 'age', 'gender'"}, 400))
+
+    gender_data = request_body["gender"]
+
+    try:
+        Gender(int(gender_data))
+    except ValueError:
+        try:
+            Gender[gender_data]
+        except KeyError:
+            abort(make_response({"message": "Invalid gender value"}, 400))
 
     new_contact = Contact.new_from_dict(request_body)
 
@@ -154,14 +170,14 @@ def get_all_contacts():
 
 @bp.route("/<uuid:id>", methods=["GET"], strict_slashes=False)
 def get_contact(id):
-    contact = validate_instance(Contact, id)
+    contact = validate_UUID(Contact, id)
     return contact.to_dict()
 
 
 @bp.route("/<uuid:id>", methods=["PUT"])
 def update_contact(id):
     print(id)
-    contact = validate_instance(Contact, id)
+    contact = validate_UUID(Contact, id)
     request_body = request.get_json()
     
     if not request_body.get("lname") or request_body["lname"]=="":
@@ -180,7 +196,7 @@ def update_contact(id):
 
 @bp.route("/<uuid:id>", methods=["DELETE"])
 def delete_contact(id):
-    contact = validate_instance(Contact, id)
+    contact = validate_UUID(Contact, id)
     db.session.delete(contact)
     db.session.commit()
     return make_response({"message": f"Contact {contact.fname} {contact.lname} successfully deleted"}, 200)

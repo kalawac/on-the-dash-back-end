@@ -25,7 +25,7 @@ class Contact(db.Model):
         new_contact = cls(
             fname=data_dict["fname"], 
             lname=data_dict["lname"], 
-            age=data_dict["age"], 
+            age=data_dict["age"] if data_dict["age"] else 0,
             gender=data_dict["gender"],
             )
 

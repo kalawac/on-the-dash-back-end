@@ -196,17 +196,22 @@ def test_get_all_contacts_combine_filters_or(client, four_contacts_with_orgs_eve
 
 
 def test_get_one_contact(client, one_contact):
-    response = client.get("contacts/1")
+    contact_query = Contact.query.filter_by(fname="Nemonte")
+    contact_query = contact_query.all()
+    contact_id = contact_query[0].id
+    test_url = "contacts/"+str(contact_id)
+    
+    response = client.get(test_url)
     response_body = response.get_json()
 
     assert response.status_code == 200
     assert response_body["id"]
-    assert response_body[0]["fname"] == "Nemonte"
-    assert response_body[0]["lname"] == "Nenquimo"
-    assert response_body[0]["age"] == 37
-    assert response_body[0]["gender"] == 1
-    assert response_body[0]["orgs"] == []
-    assert response_body[0]["events"] == []
+    assert response_body["fname"] == "Nemonte"
+    assert response_body["lname"] == "Nenquimo"
+    assert response_body["age"] == 37
+    assert response_body["gender"] == 1
+    assert response_body["orgs"] == []
+    assert response_body["events"] == []
 
 
 def test_get_one_contact_id_not_present(client, five_contacts):
@@ -214,14 +219,12 @@ def test_get_one_contact_id_not_present(client, five_contacts):
     response_body = response.get_json()
 
     assert response.status_code == 404
-    assert response_body == {"message": "Contact 9 not found"}
 
 def test_get_one_contact_invalid_id(client, five_contacts):
     response = client.get("contacts/agnes")
     response_body = response.get_json()
 
-    assert response.status_code == 400
-    assert response_body == {"message": "Contact agnes invalid"}
+    assert response.status_code == 404
     
 
 
@@ -273,8 +276,9 @@ def test_update_contact(client, five_contacts):
     contact_query = Contact.query.filter_by(fname="Mary")
     contact_query = contact_query.all()
     contact_id = contact_query[0].id
+    test_url = "contacts/"+str(contact_id)
 
-    response = client.put("contacts/{contact_id}", json = {
+    response = client.put(test_url, json = {
         "fname": "Robert",
         "lname": "Winthrop",
         "age": 42,
@@ -284,12 +288,12 @@ def test_update_contact(client, five_contacts):
 
     assert response.status_code == 200
     assert response_body["id"]
-    assert response_body[0]["fname"] == "Robert"
-    assert response_body[0]["lname"] == "Winthrop"
-    assert response_body[0]["age"] == 42
-    assert response_body[0]["gender"] == 3
-    assert response_body[0]["orgs"] == []
-    assert response_body[0]["events"] == []
+    assert response_body["fname"] == "Robert"
+    assert response_body["lname"] == "Winthrop"
+    assert response_body["age"] == 42
+    assert response_body["gender"] == 3
+    assert response_body["orgs"] == []
+    assert response_body["events"] == []
 
 
 def test_delete_contacts(client, five_contacts):

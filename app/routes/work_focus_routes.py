@@ -1,6 +1,6 @@
 from app import db
 from app.models.work_focus import WorkFocus
-from .utils import validate_instance, append_dicts_to_list
+from .utils import validate_intID, append_dicts_to_list
 from flask import Blueprint, jsonify, request, make_response, abort
 
 bp = Blueprint("wf_bp", __name__, url_prefix="/wf")
@@ -9,7 +9,7 @@ bp = Blueprint("wf_bp", __name__, url_prefix="/wf")
 def create_wf_item():
     request_body = request.get_json()
 
-    if not request_body.get("label") or request_body["label"]=="":
+    if not request_body.get("label"):
         abort(make_response({"message": "WorkFocus item requires label"}, 400))
 
     new_wf = WorkFocus(label=request_body["label"])
@@ -76,14 +76,14 @@ def get_all_work_foci():
 
 @bp.route("/<id>", methods=["GET"], strict_slashes=False)
 def get_work_focus_item(id):
-    wf = validate_instance(WorkFocus, id)
+    wf = validate_intID(WorkFocus, id)
     return wf.to_dict()
 
 
 # use judiciously - include warning that it will reclassify all items, past and present
 @bp.route("/<id>", methods=["PATCH"])
 def update_work_focus_label(id):
-    wf = validate_instance(WorkFocus, id)
+    wf = validate_intID(WorkFocus, id)
     request_body = request.get_json()
     
     wf.label = request_body["label"]
@@ -94,7 +94,7 @@ def update_work_focus_label(id):
 # don't make a button on this on FE - could mess up the database
 @bp.route("/<id>", methods=["DELETE"])
 def delete_work_focus_item(id):
-    wf = validate_instance(WorkFocus, id)
+    wf = validate_intID(WorkFocus, id)
     db.session.delete(wf)
     db.session.commit()
     return make_response({"message": f"<WorkFocus.{wf.label}: {id}> successfully deleted"}, 200)
