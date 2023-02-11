@@ -184,7 +184,7 @@ def test_create_one_org_no_name_fails(client):
     response_body = response.get_json()
 
     assert response.status_code == 400
-    assert response_body["message"] == "Org requires a name"
+    assert response_body["message"] == "Organization requires a name"
 
 
 def test_create_one_org_lname_empty_string_fails(client):
@@ -194,7 +194,7 @@ def test_create_one_org_lname_empty_string_fails(client):
     response_body = response.get_json()
 
     assert response.status_code == 400
-    assert response_body["message"] == "Org requires a name"
+    assert response_body["message"] == "Organization requires a name"
 
 
 def test_update_org(client, three_orgs):

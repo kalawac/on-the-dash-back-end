@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from .types.org_sector import OrgSector
 from .work_focus import WorkFocus
-from app.routes.utils import validate_instance
+from app.routes.utils import validate_intID
 
 # PostgreSQL Array of Enum has bug. Switched to relationship with model WorkFocus.
 
@@ -28,13 +28,13 @@ class Org(db.Model):
 
         if len(data_dict.get("foci", [])) >= 1:
             for wf_id in data_dict["foci"]:
-                validate_instance(WorkFocus, wf_id)
+                validate_intID(WorkFocus, wf_id)
             
             new_org.foci = data_dict["foci"]
 
         # thought: there should never be contacts there. confirm. if not, delete. maybe for csv?
         if len(data_dict.get("contact_ids", [])) >= 1:
-            new_org.contact_ids = data_dict["contact_ids"]
+            new_org.contacts.extend(data_dict["contact_ids"])
         
         return new_org
 
@@ -47,7 +47,7 @@ class Org(db.Model):
                 "contacts": [],
             }
         
-        if contact_ids:
+        if self.contacts:
             for contact in self.contacts:
                 contact_dict = dict(
                     id = contact.id,
