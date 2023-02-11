@@ -30,7 +30,7 @@ class Contact(db.Model):
             )
 
         if len(data_dict.get("org_ids", [])) >= 1:
-            new_contact.org_ids = data_dict["org_ids"]
+            new_contact.orgs.extend(data_dict["org_ids"])
         
         return new_contact
 

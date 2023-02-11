@@ -247,7 +247,7 @@ def test_create_one_contact(client):
     assert response_body["events"] == []
 
 
-def test_create_one_contact_no_lnamefails(client):
+def test_create_one_contact_no_lname_fails(client):
     response = client.post("contacts", json = {
         "fname": "Agnes",
         "age": 26,
@@ -287,7 +287,7 @@ def test_update_contact(client, five_contacts):
     response_body = response.get_json()
 
     assert response.status_code == 200
-    assert response_body["id"]
+    assert response_body["id"] == contact_id
     assert response_body["fname"] == "Robert"
     assert response_body["lname"] == "Winthrop"
     assert response_body["age"] == 42

@@ -134,6 +134,20 @@ def initial_work_foci(client):
 
 
 @pytest.fixture
+def three_orgs_with_work_foci(client, three_orgs, initial_work_foci):
+    orgs = Org.query.all()
+    wf_list = [1, 2, (1,4)]
+
+    i = 0
+    for org in orgs:
+        for wf in wf_list[i]:
+            org.focus_rel.append(wf)
+        i += 1
+    
+    db.session.commit()
+
+
+@pytest.fixture
 def one_event(client):
     event_dict = {
             "name": "How to Stop Time",
