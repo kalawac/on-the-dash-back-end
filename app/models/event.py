@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from .types.event_type import EventType
 from .types.subject import Subject
+from datetime import date
 
 class Event(db.Model):
     id = db.Column(
@@ -24,7 +25,7 @@ class Event(db.Model):
         new_event = cls(
             name=data_dict["name"], 
             event_type=data_dict["type"],
-            date=data_dict["date"], 
+            date=date.fromisoformat(data_dict["date"]), 
             )
 
         subject_data = data_dict.get("subjects")
@@ -45,10 +46,11 @@ class Event(db.Model):
 
     def to_dict(self):
         event_dict = {
+                "id": self.id,
                 "name": self.name,
                 "type": self.event_type,
                 "subjects": self.subjects,
-                "date": self.date,
+                "date": date.isoformat(self.date),
                 "participants": []
             }
         

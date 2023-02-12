@@ -27,12 +27,12 @@ def test_get_all_contacts_with_records(client, four_contacts_with_orgs_events):
     assert response_body[2]["age"] == 37
     assert response_body[2]["gender"] == 1
     assert response_body[2]["orgs"] == [1]
-    assert response_body[2]["events"] == []
+    assert not response_body[2]["events"]
     assert response_body[1]["fname"] == "Kate"
     assert response_body[1]["lname"] == "Dylan"
     assert response_body[1]["age"] == 38
     assert response_body[1]["gender"] == 3
-    assert response_body[1]["orgs"] == []
+    assert not response_body[1]["orgs"]
     assert response_body[1]["events"]
     assert response_body[0]["fname"] == "Nat"
     assert response_body[0]["lname"] == "Bentley"
@@ -205,8 +205,7 @@ def test_get_all_contacts_combine_filters_or(client, four_contacts_with_orgs_eve
 
 
 def test_get_one_contact(client, one_contact):
-    contact_query = Contact.query.filter_by(fname="Nemonte")
-    contact_query = contact_query.all()
+    contact_query = Contact.query.filter_by(fname="Nemonte").all()
     contact_id = contact_query[0].id
     test_url = "contacts/"+str(contact_id)
     
@@ -252,8 +251,8 @@ def test_create_one_contact(client):
     assert response_body["lname"] == "Chow"
     assert response_body["age"] == 26
     assert response_body["gender"] == 1
-    assert response_body["orgs"] == []
-    assert response_body["events"] == []
+    assert not response_body["orgs"]
+    assert not response_body["events"]
 
 
 def test_create_one_contact_no_lname_fails(client):
@@ -282,8 +281,7 @@ def test_create_one_contact_lname_empty_string_fails(client):
 
 
 def test_update_contact(client, five_contacts):
-    contact_query = Contact.query.filter_by(fname="Mary")
-    contact_query = contact_query.all()
+    contact_query = Contact.query.filter_by(fname="Mary").all()
     contact_id = contact_query[0].id
     test_url = "contacts/"+str(contact_id)
 
@@ -301,13 +299,12 @@ def test_update_contact(client, five_contacts):
     assert response_body["lname"] == "Winthrop"
     assert response_body["age"] == 42
     assert response_body["gender"] == 3
-    assert response_body["orgs"] == []
-    assert response_body["events"] == []
+    assert not response_body["orgs"]
+    assert not response_body["events"]
 
 
 def test_delete_contact(client, five_contacts):
-    contact_query = Contact.query.filter_by(fname="Nat")
-    contact_query = contact_query.all()
+    contact_query = Contact.query.filter_by(fname="Nat").all()
     contact_id = contact_query[0].id
     test_url = "contacts/"+str(contact_id)
 

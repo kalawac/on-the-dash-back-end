@@ -129,7 +129,7 @@ def one_event(client):
             "name": "How to Stop Time",
             "type": 4,
             "subjects": [1, 3, 9],
-            "date": "2021-12-21T00:00:00.000Z"
+            "date": "2021-12-21"
             }
 
     new_event = Event.new_from_dict(event_dict)
@@ -145,19 +145,19 @@ def three_events(client):
             "name": "How to Stop Time",
             "type": 4,
             "subjects": [1, 3, 9],
-            "date": "2021-12-21T00:00:00.000Z"
+            "date": "2021-12-21"
             }),
         Event.new_from_dict({
             "name": "How to Restart Time",
             "type": 4,
             "subjects": 2,
-            "date": "2021-12-21T00:27:00.000Z"
+            "date": "2021-12-21"
             }),
         Event.new_from_dict({
             "name": "Time Manipulation Support",
             "type": 3,
             "subjects": [1, 99],
-            "date": "2023-02-10T04:03:30.079Z",
+            "date": "2023-02-10",
             }),
     ])
     db.session.commit()

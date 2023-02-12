@@ -135,8 +135,7 @@ def test_get_all_orgs_combine_filters_or(client, three_orgs):
 
 
 def test_get_one_org(client, one_org):
-    org_query = Org.query.filter_by(name="Abacus Inc.")
-    org_query = org_query.all()
+    org_query = Org.query.filter_by(name="Abacus Inc.").all()
     org_id = org_query[0].id
     test_url = "orgs/"+str(org_id)
     
@@ -147,7 +146,7 @@ def test_get_one_org(client, one_org):
     assert response_body["id"]
     assert response_body["name"] == "Abacus Inc."
     assert response_body["sector"] == 5
-    assert response_body["foci"] == None
+    assert not response_body["foci"]
     # assert response_body["contacts"] == []
 
 
@@ -177,7 +176,7 @@ def test_create_one_org(client):
     assert response_body["id"]
     assert response_body["name"] == "Abacus Inc."
     assert response_body["sector"] == 5
-    assert response_body["foci"] == None
+    assert not response_body["foci"]
     # assert response_body["contacts"] == []
 
 
@@ -193,7 +192,7 @@ def test_create_one_org_no_name_fails(client):
     assert response_body["message"] == "Organization requires a name"
 
 
-def test_create_one_org_lname_empty_string_fails(client):
+def test_create_one_org_name_empty_string_fails(client):
     response = client.post("orgs", json = {
         "sector": 5,
         "foci": []
@@ -205,8 +204,7 @@ def test_create_one_org_lname_empty_string_fails(client):
 
 
 def test_update_org(client, three_orgs):
-    org_query = Org.query.filter_by(name="Thriving")
-    org_query = org_query.all()
+    org_query = Org.query.filter_by(name="Thriving").all()
     org_id = org_query[0].id
     test_url = "orgs/"+str(org_id)
 
@@ -226,8 +224,7 @@ def test_update_org(client, three_orgs):
 
 # @pytest.mark.skip()
 def test_update_org_with_wf(client, three_orgs):
-    org_query = Org.query.filter_by(name="Thriving")
-    org_query = org_query.all()
+    org_query = Org.query.filter_by(name="Thriving").all()
     org_id = org_query[0].id
     test_url = "orgs/"+str(org_id)
 
@@ -247,8 +244,7 @@ def test_update_org_with_wf(client, three_orgs):
 
 @pytest.mark.skip()
 def test_update_org_with_contacts(client, three_orgs, five_contacts):
-    org_query = Org.query.filter_by(name="Thriving")
-    org_query = org_query.all()
+    org_query = Org.query.filter_by(name="Thriving").all()
     org_id = org_query[0].id
     test_url = "orgs/"+str(org_id)
 
@@ -267,13 +263,12 @@ def test_update_org_with_contacts(client, three_orgs, five_contacts):
     assert response_body["id"] == str(org_id)
     assert response_body["name"] == "Abacus Inc."
     assert response_body["sector"] == 5
-    assert response_body["foci"] == None
+    assert response_body["foci"] == [1, 3, 5]
     assert len(response_body["contacts"]) == 5
 
 
 def test_delete_org(client, three_orgs):
-    org_query = Org.query.filter_by(name="Catch Me!")
-    org_query = org_query.all()
+    org_query = Org.query.filter_by(name="Catch Me!").all()
     org_id = org_query[0].id
     test_url = "orgs/"+str(org_id)
 
