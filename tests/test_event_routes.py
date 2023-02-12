@@ -182,17 +182,17 @@ def test_get_one_event(client, one_event):
         date.fromisoformat("2021-12-21"))
 
 
-def test_get_one_event_id_not_present_not_uuid(client, three_events):
+def test_get_one_event_id_not_uuid(client, three_events):
     response = client.get("events/9")
     response_body = response.get_json()
 
     assert response.status_code == 404
 
 
-def test_get_one_event_id_not_present_uuid(client, one_event):
+def test_get_one_event_uuid_id_not_present(client, one_event):
     random_uuid = uuid.uuid4()
 
-    event_query = Event.query.filter_by(name="How to Stop Time").all()
+    event_query = Event.query.all()
     event_id = event_query[0].id
 
     if event_id == random_uuid:
@@ -204,7 +204,7 @@ def test_get_one_event_id_not_present_uuid(client, one_event):
     response_body = response.get_json()
 
     assert response.status_code == 404
-    assert response_body["message"] == f"Event {random_uuid} not found"
+    assert response_body["message"] == f"Event with id {random_uuid} not found"
 
 
 def test_get_one_event_invalid_id(client, three_events):

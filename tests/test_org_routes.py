@@ -3,6 +3,7 @@ from werkzeug.exceptions import HTTPException
 from app.models.org import Org
 from app.models.contact import Contact
 from app import db
+import uuid
 
 def test_get_all_orgs_no_records(client):
     response = client.get("orgs")
@@ -150,11 +151,30 @@ def test_get_one_org(client, one_org):
     # assert response_body["contacts"] == []
 
 
-def test_get_one_org_id_not_present(client, three_orgs):
+def test_get_one_org_id_not_uuid(client, three_orgs):
     response = client.get("orgs/9")
     response_body = response.get_json()
 
     assert response.status_code == 404
+
+
+def test_get_one_org_uuid_id_not_present(client, one_org):
+    random_uuid = uuid.uuid4()
+
+    org_query = Org.query.all()
+    org_id = org_query[0].id
+
+    if org_id == random_uuid:
+        random_uuid = uuid.uuid4()
+
+    test_url = "orgs/"+str(random_uuid)
+
+    response = client.get(test_url)
+    response_body = response.get_json()
+
+    assert response.status_code == 404
+    assert response_body["message"] == f"Org with id {random_uuid} not found"
+
 
 def test_get_one_org_invalid_id(client, three_orgs):
     response = client.get("orgs/Thriving")

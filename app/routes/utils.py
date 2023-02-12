@@ -21,7 +21,7 @@ def validate_UUID(cls, model_id):
     instance = cls.query.get(model_id)
 
     if not instance:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+        abort(make_response({"message": f"{cls.__name__} with id {model_id} not found"}, 404))
 
     return instance
 

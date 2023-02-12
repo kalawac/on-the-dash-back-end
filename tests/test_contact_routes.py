@@ -2,6 +2,7 @@ import pytest
 from werkzeug.exceptions import HTTPException
 from app.models.contact import Contact
 from app import db
+import uuid
 
 def test_get_all_contacts_no_records(client):
     response = client.get("contacts")
@@ -222,11 +223,30 @@ def test_get_one_contact(client, one_contact):
     assert response_body["events"] == []
 
 
-def test_get_one_contact_id_not_present(client, five_contacts):
+def test_get_one_contact_id_not_uuid(client, five_contacts):
     response = client.get("contacts/9")
     response_body = response.get_json()
 
     assert response.status_code == 404
+
+
+def test_get_one_contact_uuid_id_not_present(client, one_contact):
+    random_uuid = uuid.uuid4()
+
+    contact_query = Contact.query.all()
+    contact_id = contact_query[0].id
+
+    if contact_id == random_uuid:
+        random_uuid = uuid.uuid4()
+
+    test_url = "contacts/"+str(random_uuid)
+
+    response = client.get(test_url)
+    response_body = response.get_json()
+
+    assert response.status_code == 404
+    assert response_body["message"] == f"Contact with id {random_uuid} not found"
+
 
 def test_get_one_contact_invalid_id(client, five_contacts):
     response = client.get("contacts/agnes")
