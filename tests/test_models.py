@@ -3,6 +3,7 @@ import pytest
 from app import db
 from app.models.contact import Contact
 from app.models.org import Org
+from app.models.types.work_focus import WF
 
 # need routes to write models with relationships
 
@@ -150,14 +151,14 @@ def test_create_org_no_work_focus(client):
     assert result.id
     assert result.name == "Babies for Boomerangs"
     assert result.org_sector == 2
-    assert result.foci == None
+    assert not result.foci
 
 
 # @pytest.mark.skip()
 def test_create_org_from_dict_empty_work_focus(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "sector": 2,
+            "org_sector": 2,
             "foci": []
             }
 
@@ -169,15 +170,15 @@ def test_create_org_from_dict_empty_work_focus(client):
     assert result.id
     assert result.name == "Babies for Boomerangs"
     assert result.org_sector == 2
-    assert result.foci == None
+    assert not result.foci
 
 
 # @pytest.mark.skip()
 def test_create_org_from_dict_one_work_focus(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "sector": 2,
-            "foci": 1
+            "org_sector": 2,
+            "foci": [1]
             }
 
     result = Org.new_from_dict(test_response)
@@ -195,7 +196,7 @@ def test_create_org_from_dict_one_work_focus(client):
 def test_create_org_from_dict_work_foci(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "sector": 2,
+            "org_sector": 2,
             "foci": [1,2,3]
             }
 

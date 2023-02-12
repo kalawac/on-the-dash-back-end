@@ -24,14 +24,12 @@ class Event(db.Model):
 
     @classmethod
     def new_from_dict(cls, data_dict):
-        new_event = cls(
+        return cls(
             name=data_dict["name"], 
             event_type=data_dict["event_type"],
             subjects=data_dict["subjects"],
             date=data_dict["date"]
             )
-
-        return new_event
 
 
     def to_dict(self):

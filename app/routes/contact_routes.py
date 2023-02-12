@@ -27,17 +27,25 @@ def validate_request_body(request_body):
             {"message": "Request body requires the following keys: 'fname', 'lname', 'age', 'gender'"}, 400))
 
     gender_id = request_body["gender"]
+    gender_enum = validate_gender_enum(gender_id)
 
-    validate_gender_enum(gender_id)
+    validated_dict = dict(
+        fname=request_body["fname"],
+        lname=request_body["lname"],
+        age=request_body["age"] if request_body["age"] else 0,
+        gender=gender_enum
+    )
+
+    return validated_dict
 
 
 @bp.route("", methods=["POST"], strict_slashes=False)
 def create_contact():
     request_body = request.get_json()
 
-    validate_request_body(request_body)
+    contact_dict = validate_request_body(request_body)
 
-    new_contact = Contact.new_from_dict(request_body)
+    new_contact = Contact.new_from_dict(contact_dict)
 
     db.session.add(new_contact)
     db.session.commit()
@@ -193,12 +201,12 @@ def update_contact(id):
     contact = validate_UUID(Contact, id)
     request_body = request.get_json()
     
-    validate_request_body(request_body)
+    contact_dict = validate_request_body(request_body)
 
-    contact.fname = request_body["fname"]
-    contact.lname = request_body["lname"]
-    contact.age = request_body["age"] if request_body["age"] else 0
-    contact.gender = request_body["gender"]
+    contact.fname = contact_dict["fname"]
+    contact.lname = contact_dict["lname"]
+    contact.age = contact_dict["age"]
+    contact.gender = contact_dict["gender"]
 
     db.session.add(contact)
     db.session.commit()

@@ -35,24 +35,35 @@ def validate_request_body(request_body):
             {"message": "Request body requires the following keys: 'name', 'sector', 'foci'"}, 400))
 
     sector_id = request_body["sector"]
-
-    validate_sector_enum(sector_id)
+    sector_enum = validate_sector_enum(sector_id)
 
     wf_data = request_body["foci"]
+    wf_list = []
 
-    if type(wf_data) == list or type(wf_data) == tuple:
-        for wf_id in wf_data:
-            validate_wf_enum(wf_id)
-    else:
-        validate_wf_enum(wf_data)
+    if wf_data:
+        if type(wf_data) == list or type(wf_data) == tuple:
+            for wf_id in wf_data:
+                wf_enum = validate_wf_enum(wf_id)
+                wf_list.append(wf_enum)
+        else:
+            wf_enum = validate_wf_enum(wf_data)
+            wf_list.append(wf_enum)
+
+    validated_dict = dict(
+        name=request_body["name"],
+        org_sector=sector_enum,
+        foci=wf_list
+    )
+
+    return validated_dict
 
 @bp.route("", methods=["POST"], strict_slashes=False)
 def create_org():
     request_body = request.get_json()
 
-    validate_request_body(request_body)
+    org_dict = validate_request_body(request_body)
 
-    new_org = Org.new_from_dict(request_body)
+    new_org = Org.new_from_dict(org_dict)
 
     db.session.add(new_org)
     db.session.commit()
@@ -179,25 +190,11 @@ def update_org(id):
     org = validate_UUID(Org, id)
     request_body = request.get_json()
     
-    validate_request_body(request_body)
+    org_dict = validate_request_body(request_body)
 
-    org.name = request_body["name"]
-    org.org_sector = request_body["sector"]
-
-    wf_data = request_body.get("foci")
-
-    if wf_data:
-        if type(wf_data) == list or type(wf_data) == tuple:
-            wf_list = []
-            for wf_id in wf_data:
-                wf_enum = validate_wf_enum(wf_id)
-                wf_list.append(wf_enum)
-                org.foci = wf_list # we always want to replace the existing data
-        else:
-            wf_enum = validate_wf_enum(wf_id)
-            org.foci = [wf_enum]
-    else:
-        org.foci = []
+    org.name = org_dict["name"]
+    org.org_sector = org_dict["org_sector"]
+    org.foci = org_dict["foci"]
 
     db.session.add(org)
     db.session.commit()

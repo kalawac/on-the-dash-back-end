@@ -20,25 +20,11 @@ class Org(db.Model):
 
     @classmethod
     def new_from_dict(cls, data_dict):
-        new_org = cls(
+        return cls(
             name=data_dict["name"], 
-            org_sector=data_dict["sector"]
+            org_sector=data_dict["org_sector"],
+            foci=data_dict["foci"]
             )
-
-        wf_data = data_dict.get("foci")
-
-        if wf_data:
-            if type(wf_data) == list or type(wf_data) == tuple:
-                wf_list = []
-                for wf_id in wf_data:
-                    wf_enum = WF(wf_id) if (type(wf_id) == int) else WF[wf_id]
-                    wf_list.append(wf_enum)
-                new_org.foci = wf_list
-            else:
-                wf_enum = WF(wf_data) if (type(wf_data) == int) else WF[wf_data]
-                new_org.foci = [wf_enum]
-
-        return new_org
 
     def to_dict(self):
         org_dict = {
