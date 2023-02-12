@@ -7,6 +7,15 @@ import uuid
 
 bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 
+def validate_gender_enum(gender_id):
+    try:
+        return Gender(int(gender_id))
+    except ValueError:
+        try:
+            return Gender[gender_id]
+        except KeyError:
+            abort(make_response({"message": "Invalid gender value submitted"}, 400))
+
 def validate_request_body(request_body):
     if not request_body.get("lname"):
         abort(make_response({"message": "Contact requires last name"}, 400))
@@ -16,15 +25,9 @@ def validate_request_body(request_body):
         abort(make_response(
             {"message": "Request body requires the following keys: 'fname', 'lname', 'age', 'gender'"}, 400))
 
-    gender_data = request_body["gender"]
+    gender_id = request_body["gender"]
 
-    try:
-        Gender(int(gender_data))
-    except ValueError:
-        try:
-            Gender[gender_data]
-        except KeyError:
-            abort(make_response({"message": "Invalid gender value"}, 400))
+    validate_gender_enum(gender_id)
 
 
 @bp.route("", methods=["POST"], strict_slashes=False)
@@ -40,6 +43,18 @@ def create_contact():
 
     return make_response(jsonify(new_contact.to_dict()), 201)
 
+
+def find_and_operator(query_value):
+    if str(query_value).find("+") > -1:
+        plus_split = "+"
+    elif str(query_value).find(" ") > -1:
+        plus_split = " "
+    elif str(query_value).find("%2B") > -1:
+        plus_split = "%2B"
+    else:
+        plus_split = False
+    
+    return plus_split
 
 @bp.route("", methods=["GET"], strict_slashes=False)
 def get_all_contacts():
@@ -80,12 +95,7 @@ def get_all_contacts():
                 existing_query = True
         
         if gender_query:
-            try:
-                gender_query = int(gender_query)
-            except ValueError:
-                abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
-
-            gender_enum = Gender(gender_query)
+            gender_enum = validate_gender_enum(gender_query)
 
             if existing_query:
                 q_gender = Contact.query.filter_by(gender=gender_enum)
@@ -95,24 +105,26 @@ def get_all_contacts():
                 existing_query = True
 
         if org_query:
-            if org_query.find("+") > -1:
-                query_items = org_query.split["+"]
+            org_plus_split = find_and_operator(org_query)
+
+            if org_plus_split:
+                query_items = org_query.split(org_plus_split)
                 item_query = Contact.query
-                for item in query_items:
-                    item_query = item_query.filter_by(org=item)
+                for org_id in query_items:
+                    item_query = item_query.filter_by(org=org_id)
                 
                 if existing_query:
                     contacts_query = contacts_query.union(item_query)
                 else:
                     contacts_query = item_query
             elif org_query.find("_") > -1:
-                query_items = org_query.split["_"]
-                for item in query_items:
-                    item_query = Contact.query.filter_by(org=item)
+                query_items = org_query.split("_")
+                for org_id in query_items:
+                    item_query = Contact.query.filter_by(org=org_id)
                     contacts_query = contacts_query.union(item_query)
             else:
                 if existing_query:
-                    q_org = contacts_query.filter_by(org=org_query)
+                    q_org = Contact.query.filter_by(org=org_query)
                     contacts_query = contacts_query.union(q_org)
                 else:
                     contacts_query = contacts_query.filter_by(org=org_query)
@@ -130,21 +142,18 @@ def get_all_contacts():
             contacts_query = qfn.union(qln)
         
         if gender_query:
-            try:
-                gender_query = int(gender_query)
-            except ValueError:
-                abort(make_response({"message":f"gender query value '{gender_query}' invalid"}, 400))
-
-            gender_enum = Gender(gender_query)
+            gender_enum = validate_gender_enum(gender_query)
             contacts_query = contacts_query.filter_by(gender=gender_enum)
 
         if org_query:
-            if org_query.find("+") > -1:
-                query_items = org_query.split["+"]
+            org_plus_split = find_and_operator(org_query)
+
+            if org_plus_split:
+                query_items = org_query.split(org_plus_split)
                 for item in query_items:
                     contacts_query = contacts_query.filter_by(org=item)
             elif org_query.find("_") > -1:
-                query_items = org_query.split["_"]
+                query_items = org_query.split("_")
                 for item in query_items:
                     item_query = Contact.query.filter_by(org=item)
                     contacts_query = contacts_query.union(item_query)

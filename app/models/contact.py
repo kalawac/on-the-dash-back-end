@@ -10,10 +10,10 @@ class Contact(db.Model):
     lname = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer)
     gender = db.Column(db.Enum(Gender))
-    org_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('org.id')) # will come back as an empty list
-    orgs = db.relationship("Org", back_populates="contacts") # will probably come back as empty list, single ID may come back as None
-    events = db.relationship("Event", secondary="event_attendance", back_populates="participants", viewonly=True)
-    event_assoc = db.relationship("EventAttendance", back_populates="contact")
+    # org_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('org.id')) # will come back as an empty list
+    # orgs = db.relationship("Org", back_populates="contacts") # will probably come back as empty list, single ID may come back as None
+    # events = db.relationship("Event", secondary="event_attendance", back_populates="participants", viewonly=True)
+    # event_assoc = db.relationship("EventAttendance", back_populates="contact")
 
     # indicators = db.relationship("Indicator", back_populates="participants")
 
@@ -29,8 +29,8 @@ class Contact(db.Model):
             gender=data_dict["gender"],
             )
 
-        if len(data_dict.get("org_ids", [])) >= 1:
-            new_contact.orgs.extend(data_dict["org_ids"])
+        # if len(data_dict.get("org_ids", [])) >= 1:
+        #     new_contact.orgs.extend(data_dict["org_ids"])
         
         return new_contact
 
@@ -45,18 +45,18 @@ class Contact(db.Model):
                 "events": [],
             }
         
-        if self.org_ids:
-            for org in self.orgs:
-                contact_dict["orgs"].append(org.to_dict())
+        # if self.org_ids:
+        #     for org in self.orgs:
+        #         contact_dict["orgs"].append(org.to_dict())
 
-        if self.events:
-            for event in self.events:
-                ev_dict = dict(
-                    id = event.id,
-                    name = event.name,
-                    event_type = event.event_type
-                )
-                contact_dict["events"].append(ev_dict)
+        # if self.events:
+        #     for event in self.events:
+        #         ev_dict = dict(
+        #             id = event.id,
+        #             name = event.name,
+        #             event_type = event.event_type
+        #         )
+        #         contact_dict["events"].append(ev_dict)
         
         return contact_dict
 

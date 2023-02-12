@@ -3,7 +3,6 @@ import pytest
 from app import db
 from app.models.contact import Contact
 from app.models.org import Org
-from app.models.work_focus import WorkFocus
 
 # need routes to write models with relationships
 
@@ -136,7 +135,8 @@ def test_contact_repr(client):
 def test_create_org_no_work_focus(client):
     test_response = {
             "name": "Babies for Boomerangs",
-            "sector": 2
+            "sector": 2,
+            "foci": None
             }
 
     result = Org(
@@ -171,16 +171,40 @@ def test_create_org_from_dict_empty_work_focus(client):
     assert result.org_sector == 2
     assert result.foci == None
 
-# @pytest.mark.skip()
-def test_create_work_focus(client):
-    test_response = {
-        "label": "INDIGENOUS",
-        }
 
-    result = WorkFocus(label=test_response["label"])
+# @pytest.mark.skip()
+def test_create_org_from_dict_one_work_focus(client):
+    test_response = {
+            "name": "Babies for Boomerangs",
+            "sector": 2,
+            "foci": 1
+            }
+
+    result = Org.new_from_dict(test_response)
 
     db.session.add(result)
     db.session.commit()
 
     assert result.id
-    assert result.label == "INDIGENOUS"
+    assert result.name == "Babies for Boomerangs"
+    assert result.org_sector == 2
+    assert result.foci == [1]
+
+
+# @pytest.mark.skip()
+def test_create_org_from_dict_work_foci(client):
+    test_response = {
+            "name": "Babies for Boomerangs",
+            "sector": 2,
+            "foci": [1,2,3]
+            }
+
+    result = Org.new_from_dict(test_response)
+
+    db.session.add(result)
+    db.session.commit()
+
+    assert result.id
+    assert result.name == "Babies for Boomerangs"
+    assert result.org_sector == 2
+    assert result.foci == [1,2,3]

@@ -2,20 +2,18 @@ from app import db
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
 from .types.org_sector import OrgSector
-from .work_focus import WorkFocus
+from .types.work_focus import WF
 from .contact import Contact
 from app.routes.utils import validate_intID, validate_UUID
 
-# PostgreSQL Array of Enum has bug. Switched to relationship with model WorkFocus.
 
 class Org(db.Model):
     id = db.Column(
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
-    foci = db.Column(db.Integer, db.ForeignKey('work_focus.id'))
-    focus_rel = db.relationship("WorkFocus", back_populates="orgs")
-    contacts = db.relationship("Contact", back_populates="orgs")
+    foci = db.Column(db.ARRAY(db.Enum(WF, name="wf")))
+    # need to set up association table for contacts 0..+ relationship
 
     def __repr__(self):
         return '<Org %r>' % self.name
@@ -24,21 +22,22 @@ class Org(db.Model):
     def new_from_dict(cls, data_dict):
         new_org = cls(
             name=data_dict["name"], 
-            org_sector=data_dict["sector"],
+            org_sector=data_dict["sector"]
             )
 
-        if len(data_dict.get("foci", [])) >= 1:
-            for wf_id in data_dict["foci"]:
-                wf = validate_intID(WorkFocus, wf_id)
-                new_org.focus_rel.append(wf)
+        wf_data = data_dict.get("foci")
 
-        if len(data_dict.get("contact_ids", [])) >= 1:
-            for contact_id in data_dict["contact_ids"]:
-                contact = validate_UUID(Contact, contact_id)
+        if wf_data:
+            if type(wf_data) == list or type(wf_data) == tuple:
+                wf_list = []
+                for wf_id in wf_data:
+                    wf_enum = WF(wf_id) if (type(wf_id) == int) else WF[wf_id]
+                    wf_list.append(wf_enum)
+                new_org.foci = wf_list
+            else:
+                wf_enum = WF(wf_data) if (type(wf_data) == int) else WF[wf_data]
+                new_org.foci = [wf_enum]
 
-                if contact not in org.contacts:
-                    new_org.contacts.append(contact)
-        
         return new_org
 
     def to_dict(self):
@@ -47,18 +46,6 @@ class Org(db.Model):
                 "name": self.name,
                 "sector": self.org_sector,
                 "foci": self.foci,
-                "contacts": [],
             }
-        
-        if self.contacts:
-            for contact in self.contacts:
-                contact_dict = dict(
-                    id = contact.id,
-                    fname = contact.fname,
-                    lname = contact.lname,
-                    age = contact.age,
-                    gender = contact.gender
-                )
-                org_dict["contacts"].append(contact_dict)
         
         return org_dict

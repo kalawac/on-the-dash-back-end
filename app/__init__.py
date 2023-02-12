@@ -29,9 +29,7 @@ def create_app(test_config=None):
     from app.models.event import Event
     from app.models.indicator import Indicator
     from app.models.org import Org
-    from app.models.work_focus import WorkFocus
-    from app.models.event_attendance import EventAttendance
-
+    # from app.models.event_attendance import EventAttendance
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -41,13 +39,11 @@ def create_app(test_config=None):
     from .routes import event_routes
     from .routes import indicator_routes
     from .routes import org_routes
-    from .routes import work_focus_routes
 
     app.register_blueprint(contact_routes.bp)
     app.register_blueprint(event_routes.bp)
     app.register_blueprint(indicator_routes.bp)
     app.register_blueprint(org_routes.bp)
-    app.register_blueprint(work_focus_routes.bp)
 
     CORS(app)
     return app

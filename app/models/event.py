@@ -2,16 +2,17 @@ from app import db
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from .types.event_type import EventType
+from .types.subject import Subject
 
 class Event(db.Model):
     id = db.Column(
         UUID(as_uuid = True), primary_key = True, default = uuid.uuid4)
     name = db.Column(db.String)
     event_type = db.Column(db.Enum(EventType))
-    subjects = db.Column(db.Enum(EventType)) # needs to be relationship or array of enum
+    subjects = db.Column(db.ARRAY(db.Enum(Subject)))
     date = db.Column(db.DateTime)
-    participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
-    participant_assoc = db.relationship("EventAttendance", back_populates="event")
+    # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
+    # participant_assoc = db.relationship("EventAttendance", back_populates="event")
 
     # participant_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), nullable=True)
     # attended = db.relationship("Contact", back_populates="events_attended"),
@@ -20,12 +21,27 @@ class Event(db.Model):
 
     @classmethod
     def new_from_dict(cls, data_dict):
-        return cls(
+        new_event = cls(
             name=data_dict["name"], 
-            event_type=data_dict["type"], 
-            subjects=data_dict["subjects"], 
+            event_type=data_dict["type"],
             date=data_dict["date"], 
             )
+
+        subject_data = data_dict.get("subjects")
+
+        if subject_data:
+            if type(subject_data) == list or type(subject_data) == tuple:
+                subject_list = []
+                for subject_id in subject_data:
+                    subject_enum = Subject(subject_id) if (type(subject_id) == int) else Subject[subject_id]
+                    subject_list.append(subject_enum)
+                new_event.subjects = subject_list
+            else:
+                subject_enum = Subject(subject_data) if (type(subject_data) == int) else Subject[subject_data]
+                new_event.subjects = [subject_enum]
+
+        return new_event
+
 
     def to_dict(self):
         event_dict = {
@@ -36,16 +52,16 @@ class Event(db.Model):
                 "participants": []
             }
         
-        if self.participants:
-            for participant in self.participants:
-                contact_dict = dict(
-                    id = contact.id,
-                    fname = contact.fname,
-                    lname = contact.lname,
-                    age = contact.age,
-                    gender = contact.gender
-                )
-                event_dict["participants"].append(contact_dict)
+        # if self.participants:
+        #     for participant in self.participants:
+        #         contact_dict = dict(
+        #             id = contact.id,
+        #             fname = contact.fname,
+        #             lname = contact.lname,
+        #             age = contact.age,
+        #             gender = contact.gender
+        #         )
+        #         event_dict["participants"].append(contact_dict)
         
         return event_dict
 

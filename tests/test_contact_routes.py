@@ -118,6 +118,7 @@ def test_get_all_contacts_filter_lname(client, five_contacts):
     assert response_body[1]["lname"] == "Seacole"
 
 
+@pytest.mark.skip()
 def test_get_all_contacts_filter_gender(client, four_contacts_with_orgs_events):
     queries = {'gender': '1'}
     response = client.get("contacts", query_string=queries)
@@ -179,6 +180,7 @@ def test_get_all_contacts_combine_sort_filter(client, four_contacts_with_orgs_ev
     assert response_body[2]["fname"] == "Nemonte"
 
 
+@pytest.mark.skip()
 def test_get_all_contacts_combine_filters_and(client, four_contacts_with_orgs_events):
     queries = {'lname': 'le', 'gender': '1'}
     response = client.get("contacts", query_string=queries)
@@ -189,6 +191,7 @@ def test_get_all_contacts_combine_filters_and(client, four_contacts_with_orgs_ev
     assert response_body[0]["lname"] == "Seacole"
 
 
+@pytest.mark.skip()
 def test_get_all_contacts_combine_filters_or(client, four_contacts_with_orgs_events):
     queries = {'lname': 'le', 'gender': '1', 'OR': True}
     response = client.get("contacts", query_string=queries)

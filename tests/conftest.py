@@ -4,9 +4,8 @@ from app import db
 from flask.signals import request_finished
 from app.models.contact import Contact
 from app.models.org import Org
-from app.models.work_focus import WorkFocus
 from app.models.event import Event
-from app.models.event_attendance import EventAttendance
+# from app.models.event_attendance import EventAttendance
 
 
 @pytest.fixture
@@ -93,6 +92,7 @@ def one_org(client):
     org_dict = {
         "name": "Abacus Inc.",
         "sector": 5,
+        "foci": []
     }
 
     new_org = Org.new_from_dict(org_dict)
@@ -107,43 +107,19 @@ def three_orgs(client):
         Org.new_from_dict({
             "name": "Babies for Boomerangs",
             "sector": 2,
+            "foci": [1]
             }),
         Org.new_from_dict({
             "name": "Catch Me!",
             "sector": 2,
+            "foci": 2
             }),
         Org.new_from_dict({
             "name": "Thriving",
             "sector": 7,
+            "foci": [1, 4]
             }),
     ])
-    db.session.commit()
-
-
-@pytest.fixture
-def initial_work_foci(client):
-    
-    wf1 = WorkFocus(label='INDIGENOUS')
-    wf2 = WorkFocus(label='LGBTI')
-    wf3 = WorkFocus(label='RELIGIOUS_FREEDOM')
-    wf4 = WorkFocus(label='WOMENS_RIGHTS')
-    wf5 = WorkFocus(label='OTHER')
-    
-    db.session.add_all([wf1, wf2, wf3, wf4, wf5])
-    db.session.commit()
-
-
-@pytest.fixture
-def three_orgs_with_work_foci(client, three_orgs, initial_work_foci):
-    orgs = Org.query.all()
-    wf_list = [1, 2, (1,4)]
-
-    i = 0
-    for org in orgs:
-        for wf in wf_list[i]:
-            org.focus_rel.append(wf)
-        i += 1
-    
     db.session.commit()
 
 
@@ -152,7 +128,7 @@ def one_event(client):
     event_dict = {
             "name": "How to Stop Time",
             "type": 4,
-            "subjects": 1, # can only have one subject for now
+            "subjects": [1, 3, 9],
             "date": "2021-12-21T00:00:00.000Z"
             }
 
@@ -168,7 +144,7 @@ def three_events(client):
         Event.new_from_dict({
             "name": "How to Stop Time",
             "type": 4,
-            "subjects": 1, # can only have one subject at a time for now
+            "subjects": [1, 3, 9],
             "date": "2021-12-21T00:00:00.000Z"
             }),
         Event.new_from_dict({
@@ -180,7 +156,7 @@ def three_events(client):
         Event.new_from_dict({
             "name": "Time Manipulation Support",
             "type": 3,
-            "subjects": 99,
+            "subjects": [1, 99],
             "date": "2023-02-10T04:03:30.079Z",
             }),
     ])
