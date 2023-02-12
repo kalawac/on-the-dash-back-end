@@ -37,7 +37,7 @@ def test_get_all_events_with_records(client, three_events):
     assert response_body[2]["type"] == 3
     assert response_body[2]["subjects"] == [1,99]
     assert (date.fromisoformat(response_body[2]["date"]) == 
-        date.fromisoformat("2023-02-10"))
+        date.fromisoformat("2020-02-10"))
 
 
 def test_get_all_events_sort_desc(client, three_events):
@@ -59,9 +59,9 @@ def test_get_all_events_sort_date(client, three_events):
 
     assert response.status_code == 200
     assert len(response_body) == 3
-    assert response_body[0]["name"] == "How to Stop Time"
+    assert response_body[0]["name"] == "Time Manipulation Support"
     assert response_body[1]["name"] == "How to Restart Time"
-    assert response_body[2]["name"] == "Time Manipulation Support"
+    assert response_body[2]["name"] == "How to Stop Time"
 
 
 def test_get_all_events_sort_date_desc(client, three_events):
@@ -71,9 +71,9 @@ def test_get_all_events_sort_date_desc(client, three_events):
 
     assert response.status_code == 200
     assert len(response_body) == 3
-    assert response_body[2]["name"] == "How to Stop Time"
-    assert response_body[1]["name"] == "How to Restart Time"
-    assert response_body[0]["name"] == "Time Manipulation Support"
+    assert response_body[0]["name"] == "How to Restart Time"
+    assert response_body[1]["name"] == "How to Stop Time"
+    assert response_body[2]["name"] == "Time Manipulation Support"
 
 
 def test_get_all_events_filter_name(client, three_events):
@@ -116,8 +116,9 @@ def test_get_all_events_filter_subjects_with_or(client, three_events):
 
     assert response.status_code == 200
     assert len(response_body) == 3
-    assert response_body[1]["name"] in ["How to Restart Time", "Time Manipulation Support"]
-    assert response_body[2]["name"] in ["How to Restart Time", "Time Manipulation Support"]
+    assert response_body[0]["name"] == "How to Restart Time"
+    assert response_body[1]["name"] == "How to Stop Time"
+    assert response_body[2]["name"] == "Time Manipulation Support"
 
 # @pytest.mark.skip()
 def test_get_all_events_filter_subjects_with_and(client, three_events):
@@ -143,7 +144,7 @@ def test_get_all_events_combine_sort_filter(client, three_events):
 
 # @pytest.mark.skip()
 def test_get_all_events_combine_filters_and(client, three_events):
-    queries = {'type': '2', 'subject': '2'}
+    queries = {'type': '4', 'subject': '2'}
     response = client.get("events", query_string=queries)
     response_body = response.get_json()
 
@@ -255,6 +256,58 @@ def test_create_one_event_name_empty_string_fails(client):
 
     assert response.status_code == 400
     assert response_body["message"] == "Event requires a name"
+
+
+def test_create_one_event_no_date_fails(client):
+    response = client.post("events", json = {
+        "name": "How to Stop Time",
+        "type": 4,
+        "subjects": [],
+        "dat": "2021-12-21"
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "No date value received"
+
+
+def test_create_one_event_date_empty_fails(client):
+    response = client.post("events", json = {
+        "name": "How to Stop Time",
+        "type": 4,
+        "subjects": [],
+        "date": ""
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "No date value received"
+
+
+def test_create_one_event_date_invalid_fails(client):
+    response = client.post("events", json = {
+        "name": "How to Stop Time",
+        "type": 4,
+        "subjects": [],
+        "date": "2021-13-21"
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "Invalid date value submitted"
+
+
+def test_create_one_event_date_not_string_fails(client):
+    response = client.post("events", json = {
+        "name": "How to Stop Time",
+        "type": 4,
+        "subjects": [],
+        "date": 1496275200000
+    })
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body["message"] == "Invalid date value submitted"
 
 
 def test_update_event(client, three_events):

@@ -6,6 +6,7 @@ from app import db
 from app.models.contact import Contact
 from app.models.org import Org
 from app.models.event import Event
+from app.routes.event_routes import validate_request_body
 # from app.models.event_attendance import EventAttendance
 
 
@@ -126,12 +127,12 @@ def three_orgs(client):
 
 @pytest.fixture
 def one_event(client):
-    event_dict = {
+    event_dict = validate_request_body({
             "name": "How to Stop Time",
             "type": 4,
             "subjects": [1, 3, 9],
             "date": "2021-12-21"
-            }
+            })
 
     new_event = Event.new_from_dict(event_dict)
     
@@ -142,24 +143,24 @@ def one_event(client):
 @pytest.fixture
 def three_events(client):
     db.session.add_all([
-        Event.new_from_dict({
+        Event.new_from_dict(validate_request_body({
             "name": "How to Stop Time",
             "type": 4,
             "subjects": [1, 3, 9],
             "date": "2021-12-21"
-            }),
-        Event.new_from_dict({
+            })),
+        Event.new_from_dict(validate_request_body({
             "name": "How to Restart Time",
             "type": 4,
             "subjects": 2,
             "date": "2021-12-21"
-            }),
-        Event.new_from_dict({
+            })),
+        Event.new_from_dict(validate_request_body({
             "name": "Time Manipulation Support",
             "type": 3,
             "subjects": [1, 99],
-            "date": "2023-02-10",
-            }),
+            "date": "2020-02-10",
+            })),
     ])
     db.session.commit()
 

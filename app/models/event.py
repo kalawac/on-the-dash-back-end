@@ -13,7 +13,7 @@ class Event(db.Model):
     name = db.Column(db.String)
     event_type = db.Column(db.Enum(EventType))
     subjects = db.Column(db.ARRAY(db.Enum(Subject)))
-    date = db.Column(db.DateTime)
+    date = db.Column(db.Date)
     # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
     # participant_assoc = db.relationship("EventAttendance", back_populates="event")
 
@@ -26,22 +26,10 @@ class Event(db.Model):
     def new_from_dict(cls, data_dict):
         new_event = cls(
             name=data_dict["name"], 
-            event_type=data_dict["type"],
-            date=date.fromisoformat(data_dict["date"]), 
+            event_type=data_dict["event_type"],
+            subjects=data_dict["subjects"],
+            date=data_dict["date"]
             )
-
-        subject_data = data_dict.get("subjects")
-
-        if subject_data:
-            if type(subject_data) == list or type(subject_data) == tuple:
-                subject_list = []
-                for subject_id in subject_data:
-                    subject_enum = Subject(subject_id) if (type(subject_id) == int) else Subject[subject_id]
-                    subject_list.append(subject_enum)
-                new_event.subjects = subject_list
-            else:
-                subject_enum = Subject(subject_data) if (type(subject_data) == int) else Subject[subject_data]
-                new_event.subjects = [subject_enum]
 
         return new_event
 
