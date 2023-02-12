@@ -14,8 +14,8 @@ class Event(db.Model):
     event_type = db.Column(db.Enum(EventType))
     subjects = db.Column(db.ARRAY(db.Enum(Subject)))
     date = db.Column(db.Date)
-    # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
-    # participant_assoc = db.relationship("EventAttendance", back_populates="event")
+    participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events", viewonly=True)
+    participant_assoc = db.relationship("EventAttendance", back_populates="event")
 
     # participant_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), nullable=True)
     # attended = db.relationship("Contact", back_populates="events_attended"),
@@ -42,22 +42,15 @@ class Event(db.Model):
                 "participants": []
             }
         
-        # if self.participants:
-        #     for participant in self.participants:
-        #         contact_dict = dict(
-        #             id = contact.id,
-        #             fname = contact.fname,
-        #             lname = contact.lname,
-        #             age = contact.age,
-        #             gender = contact.gender
-        #         )
-        #         event_dict["participants"].append(contact_dict)
+        if self.participants:
+            for participant in self.participants:
+                contact_dict = dict(
+                    id = contact.id,
+                    fname = contact.fname,
+                    lname = contact.lname,
+                    age = contact.age,
+                    gender = contact.gender
+                )
+                event_dict["participants"].append(contact_dict)
         
         return event_dict
-
-
-
-## UTC does not have daylight saving time ever, so you can avoid that
-## use ISO 8601 and save full date time object with time in UTC, even though I only want date
-## call the object with just date and send it to FE like that, in ISO 8601 ('yyyy-mm-dd')
-# use the standard datetime library

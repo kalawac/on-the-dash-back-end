@@ -14,8 +14,8 @@ class Contact(db.Model):
     gender = db.Column(db.Enum(Gender))
     # org_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('org.id')) # will come back as an empty list
     # orgs = db.relationship("Org", back_populates="contacts") # will probably come back as empty list, single ID may come back as None
-    # events = db.relationship("Event", secondary="event_attendance", back_populates="participants", viewonly=True)
-    # event_assoc = db.relationship("EventAttendance", back_populates="contact")
+    events = db.relationship("Event", secondary="event_attendance", back_populates="participants", viewonly=True)
+    event_assoc = db.relationship("EventAttendance", back_populates="contact")
 
     # indicators = db.relationship("Indicator", back_populates="participants")
 

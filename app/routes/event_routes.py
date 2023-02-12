@@ -3,7 +3,6 @@ from datetime import date
 
 from app import db
 from app.models.event import Event
-from app.models.contact import Contact
 from app.models.types.event_type import EventType
 from app.models.types.subject import Subject
 from .utils import validate_UUID, validate_intID, append_dicts_to_list
