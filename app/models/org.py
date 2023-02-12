@@ -1,10 +1,10 @@
-from app import db
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
 import uuid
+
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
+
+from app import db
 from .types.org_sector import OrgSector
 from .types.work_focus import WF
-from .contact import Contact
-from app.routes.utils import validate_intID, validate_UUID
 
 
 class Org(db.Model):

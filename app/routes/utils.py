@@ -1,6 +1,4 @@
-# from app import db
 from flask import make_response, abort
-import uuid
 
 def validate_intID(cls, model_id):
     try:

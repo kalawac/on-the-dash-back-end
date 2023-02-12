@@ -1,9 +1,10 @@
 from app import db
-from app.models.contact import Contact
 from flask import Blueprint, jsonify, request, make_response, abort
-from .utils import validate_UUID, append_dicts_to_list
-from app.models.types.gender import Gender
 import uuid
+
+from app.models.contact import Contact
+from app.models.types.gender import Gender
+from .utils import validate_UUID, append_dicts_to_list
 
 bp = Blueprint("contacts_bp", __name__, url_prefix="/contacts")
 

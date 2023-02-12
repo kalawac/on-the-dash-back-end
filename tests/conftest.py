@@ -1,7 +1,8 @@
+from flask.signals import request_finished
 import pytest
+
 from app import create_app
 from app import db
-from flask.signals import request_finished
 from app.models.contact import Contact
 from app.models.org import Org
 from app.models.event import Event

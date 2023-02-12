@@ -1,6 +1,8 @@
-from app import db
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
+
+from sqlalchemy.dialects.postgresql import UUID
+
+from app import db
 from .types.gender import Gender
 
 class Contact(db.Model):

@@ -1,9 +1,11 @@
-from app import db
-from sqlalchemy.dialects.postgresql import UUID
+from datetime import date
 import uuid
+
+from sqlalchemy.dialects.postgresql import UUID
+
+from app import db
 from .types.event_type import EventType
 from .types.subject import Subject
-from datetime import date
 
 class Event(db.Model):
     id = db.Column(

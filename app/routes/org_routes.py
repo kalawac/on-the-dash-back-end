@@ -1,10 +1,10 @@
 from app import db
 from flask import Blueprint, jsonify, request, make_response, abort
+
 from app.models.org import Org
 from app.models.types.org_sector import OrgSector
 from app.models.types.work_focus import WF
-from app.models.contact import Contact
-from .utils import validate_UUID, validate_intID, append_dicts_to_list
+from .utils import validate_UUID, append_dicts_to_list
 
 bp = Blueprint("orgs_bp", __name__, url_prefix="/orgs")
 
@@ -103,10 +103,9 @@ def get_all_orgs():
 
             if wf_plus_split:
                 query_items = wf_query.split(wf_plus_split)
-                item_query = Org.query
-                for item in query_items:
-                    wf_enum = validate_wf_enum(item)
-                    item_query = item_query.filter(Org.foci.any(wf_enum))
+                for wf_id in query_items:
+                    wf_enum = validate_wf_enum(wf_id)
+                    item_query = Org.query.filter(Org.foci.any(wf_enum))
                 
                 if existing_query:
                     orgs_query = orgs_query.union(item_query)
@@ -114,8 +113,8 @@ def get_all_orgs():
                     orgs_query = item_query
             elif wf_query.find("_") > -1:
                 query_items = wf_query.split["_"]
-                for item in query_items:
-                    wf_enum = validate_wf_enum(item)
+                for wf_id in query_items:
+                    wf_enum = validate_wf_enum(wf_id)
                     item_query = Org.query.filter(Org.foci.any(wf_enum))
                     orgs_query = orgs_query.union(item_query)
             else:
