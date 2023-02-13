@@ -3,6 +3,8 @@ from datetime import date
 
 from app import db
 from app.models.event import Event
+from app.models.contact import Contact
+# from app.models.event_attendance import EventAttendance
 from app.models.types.event_type import EventType
 from app.models.types.subject import Subject
 from .utils import validate_UUID, validate_intID, append_dicts_to_list
@@ -62,11 +64,26 @@ def validate_request_body(request_body):
             subject_enum = validate_subject_enum(subject_data)
             subject_list.append(subject_enum)
 
+    participant_data = request_body.get("participants", [])
+    participant_list = []
+
+    if participant_data:
+        if type(participant_data) == list or type(participant_data) == tuple:
+            for contact_id in participant_data:
+                participant = validate_UUID(Contact, contact_id)
+                participant_list.append(participant)
+
+        else:
+            participant = validate_UUID(Contact, participant_list)
+            participant_list.append(participant)
+
+
     validated_dict = dict(
         name=request_body["name"],
         event_type=type_enum,
         subjects=subject_list,
-        date=date_obj
+        date=date_obj,
+        participants=participant_list
     )
 
     return validated_dict
@@ -230,3 +247,14 @@ def delete_event(id):
     db.session.delete(event)
     db.session.commit()
     return make_response({"message": f"Event '{event.name}' successfully deleted"}, 200)
+
+
+# EventAttendance nested routes start here
+
+# @bp.route("/<uuid:id>/participants", methods=["GET"], strict_slashes=False)
+# def get_event_participant_list(id):
+    # below returns blank
+    # event = validate_UUID(Event, id)
+    # return jsonify(event.participants)
+
+
