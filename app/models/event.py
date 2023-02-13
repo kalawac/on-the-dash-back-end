@@ -4,9 +4,11 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-# from .event_attendance import EventAttendance
+from .contact import Contact
+from .event_attendance import xEventAttendance
 from .types.event_type import EventType
 from .types.subject import Subject
+from app.routes.utils import validate_UUID
 
 class Event(db.Model):
     id = db.Column(
@@ -15,11 +17,7 @@ class Event(db.Model):
     event_type = db.Column(db.Enum(EventType))
     subjects = db.Column(db.ARRAY(db.Enum(Subject)))
     date = db.Column(db.Date)
-    # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events")
-
-    # participant_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), nullable=True)
-    # attended = db.relationship("Contact", back_populates="events_attended"),
-    # completed = db.relationship("Contact", back_populates="events_completed"),
+    participants = db.relationship("xEventAttendance", back_populates="event")
 
 
     @classmethod
@@ -29,9 +27,18 @@ class Event(db.Model):
             event_type=data_dict["event_type"],
             subjects=data_dict["subjects"],
             date=data_dict["date"],
-            # participants = data_dict["participants"]
+            participants=[]
             )
 
+    def get_attendance_dict(self):
+        attendance_query = xEventAttendance.query.filter_by(event_id=self.id).all()
+        attendance_dict = dict()
+
+        for attendance_data in attendance_query:
+            participant_id = str(attendance_data.participant_id)
+            attendance_dict[participant_id] = attendance_data.to_participant_dict()
+        
+        return attendance_dict
 
     def to_dict(self):
         event_dict = {
@@ -43,27 +50,18 @@ class Event(db.Model):
                 "participants": []
             }
 
-        # if self.participants:
-        #     attendance_query = EventAttendance.query.filter_by(event_id=self.id).all()
-        #     attendance_dict = dict()
-
-        #     for attendance_data in attendance_query:
-        #         participant_id = str(attendance_data.participant_id)
-        #         print(participant_id)
-        #         attendance_dict[participant_id] = attendance_data.to_participant_dict()
-        
-        #     print(attendance_dict)
-
-        #     for contact in self.participants:
-        #         contact_dict = dict(
-        #             id=str(contact.id),
-        #             fname=contact.fname,
-        #             lname=contact.lname,
-        #             age=contact.age,
-        #             gender=contact.gender,
-        #             attendance_data=attendance_dict[str(contact.id)]
-        #         )
-        #         print(str(contact.id))
-        #         event_dict["participants"].append(contact_dict)
+        if self.participants:
+            for event_att_instance in self.participants:
+                contact_id = str(event_att_instance.participant_id),
+                contact = validate_UUID(Contact, contact_id)
+                contact_dict = dict(
+                    id=str(contact.id), # contact_id seems to be a list with one element
+                    fname=contact.fname,
+                    lname=contact.lname,
+                    age=contact.age,
+                    gender=contact.gender,
+                    attendance_data=event_att_instance.to_participant_dict()
+                )
+                event_dict["participants"].append(contact_dict)
         
         return event_dict
