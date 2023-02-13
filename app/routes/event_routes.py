@@ -250,10 +250,27 @@ def update_event(id):
     
     event_dict = validate_request_body(request_body)
 
+    participant_query = xEventAttendance.query.filter_by(event_id=event.id).delete()
+    db.session.commit()
+
     event.name = event_dict["name"]
     event.event_type = event_dict["event_type"]
     event.subjects = event_dict["subjects"]
     event.date = event_dict["date"]
+    event.participants = []
+
+    participant_dict = event_dict.get("participants")
+    attendance_dict = event_dict.get("attendance")
+
+    if participant_dict:
+        for contact_id in participant_dict.keys():
+            if attendance_dict:
+                new_event_att = xEventAttendance.attach_extra_data(attendance_dict[contact_id])
+            else:
+                new_event_att = xEventAttendance(
+                    attended=False, completed=False)
+            new_event_att.participant = participant_dict[contact_id]
+            event.participants.append(new_event_att)
 
     db.session.add(event)
     db.session.commit()
