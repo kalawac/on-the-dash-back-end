@@ -9,8 +9,8 @@ class xEventAttendance(db.Model):
     participant_id = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), primary_key=True)
     attended = db.Column(db.Boolean, default=False)
     completed = db.Column(db.Boolean, default=False)
-    participant = relationship("Contact", back_populates="events")
-    event = relationship("Event", back_populates="participants")
+    participant = db.relationship("Contact", back_populates="events")
+    event = db.relationship("Event", back_populates="participants")
 
 
     # @classmethod
