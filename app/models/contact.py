@@ -28,7 +28,7 @@ class Contact(db.Model):
             lname=data_dict["lname"], 
             age=data_dict["age"] if data_dict["age"] else 0,
             gender=data_dict["gender"],
-            orgs=data_dict["orgs"]
+            orgs=data_dict.get("orgs", [])
             )
 
     def to_dict(self):

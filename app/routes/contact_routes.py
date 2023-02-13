@@ -4,6 +4,7 @@ import uuid
 
 from app.models.contact import Contact
 from app.models.org import Org
+from app.models.contact_org import xContactOrg
 from app.models.types.gender import Gender
 from .utils import validate_UUID, append_dicts_to_list
 
@@ -134,27 +135,34 @@ def get_all_contacts():
             if org_plus_split:
                 query_items = org_query.split(org_plus_split)
                 item_query = Contact.query
+
+                i = 0
                 for org_id in query_items:
                     org = validate_UUID(Org, org_id)
-                    item_query = item_query.filter(Contact.orgs.any(org.id))
+                    item_query = item_query.join(xContactOrg).join(Org).filter(xContactOrg.org_id == org.id)
+                    if i == 0:
+                        build_query = item_query
+                    else:
+                        build_query = build_query.union(item_query)
+                    i += 1
                 
                 if existing_query:
-                    contacts_query = contacts_query.union(item_query)
+                    contacts_query = contacts_query.union(build_query)
                 else:
-                    contacts_query = item_query
+                    contacts_query = build_query
             elif org_query.find("_") > -1:
                 query_items = org_query.split("_")
                 for org_id in query_items:
                     org = validate_UUID(Org, org_id)
-                    item_query = Contact.query.filter(Contact.orgs.any(org.id))
+                    item_query = Contact.query.join(xContactOrg).join(Org).filter(xContactOrg.org_id == org.id)
                     contacts_query = contacts_query.union(item_query)
             else:
                 org = validate_UUID(Org, org_query)
                 if existing_query:
-                    q_org = Contact.query.filter(Contact.orgs.any(org.id))
+                    q_org = Contact.query.join(xContactOrg).join(Org).filter((xContactOrg.org_id == org.id))
                     contacts_query = contacts_query.union(q_org)
                 else:
-                    contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
+                    contacts_query = contacts_query.join(xContactOrg).join(Org).filter((xContactOrg.org_id == org.id))
 
     else:
         if fname_query:
@@ -179,16 +187,25 @@ def get_all_contacts():
                 query_items = org_query.split(org_plus_split)
                 for org_id in query_items:
                     org = validate_UUID(Org, org_id)
-                    contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
+                    item_query = Contact.query.join(xContactOrg).join(Org).filter(xContactOrg.org_id == org.id)
+                    contacts_query = contacts_query.intersect(item_query)
+
             elif org_query.find("_") > -1:
                 query_items = org_query.split("_")
+                i = 0
                 for org_id in query_items:
                     org = validate_UUID(Org, org_id)
-                    item_query = Contact.query.filter(Contact.orgs.any(org.id))
-                    contacts_query = contacts_query.union(item_query)
+                    item_query = Contact.query.join(xContactOrg).join(Org).filter(xContactOrg.org_id == org.id)
+                    if i == 0:
+                        build_query = item_query
+                    else:
+                        build_query = build_query.union(item_query)
+                    i += 1
+                contacts_query = contacts_query.intersect(build_query)
+
             else:
                 org = validate_UUID(Org, org_query)
-                contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
+                contacts_query = contacts_query.join(xContactOrg).join(Org).filter(xContactOrg.org_id == org.id)
 
     if sort_query:
         if sort_query == "desc":

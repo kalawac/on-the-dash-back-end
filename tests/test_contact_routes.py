@@ -138,7 +138,7 @@ def test_get_all_contacts_filter_gender(client, four_contacts_with_orgs_events):
     assert response_body[1]["lname"] == "Seacole"
 
 
-@pytest.mark.skip() # org search not working
+# @pytest.mark.skip() # org search not working
 def test_get_all_contacts_filter_single_org(client, four_contacts_with_orgs_events):
     orgs = Org.query.all()
     org_ids = [ str(org.id) for org in orgs ]
@@ -157,9 +157,16 @@ def test_get_all_contacts_filter_single_org(client, four_contacts_with_orgs_even
     assert response_body[1]["lname"] == "Seacole"
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 def test_get_all_contacts_filter_multiple_orgs_with_or(client, four_contacts_with_orgs_events):
-    queries = {'org': '3_1'} # convert to uuids
+    orgs = Org.query.all()
+    org_ids = [ str(org.id) for org in orgs ]
+
+    o1 = org_ids[0]
+    o2 = org_ids[1]
+    o3 = org_ids[2]
+
+    queries = {'org': f'{o3}_{o1}'}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -170,9 +177,16 @@ def test_get_all_contacts_filter_multiple_orgs_with_or(client, four_contacts_wit
     assert response_body[2]["lname"] == "Seacole"
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip() # looking for one works but not more than one
 def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_with_orgs_events):
-    queries = {'org': '2+3'} # convert to uuids
+    orgs = Org.query.all()
+    org_ids = [ str(org.id) for org in orgs ]
+
+    o1 = org_ids[0]
+    o2 = org_ids[1]
+    o3 = org_ids[2]
+
+    queries = {'org': f'{o3}+{o2}'}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
@@ -183,7 +197,7 @@ def test_get_all_contacts_filter_multiple_orgs_with_and(client, four_contacts_wi
 
 # @pytest.mark.skip()
 def test_get_all_contacts_combine_sort_filter(client, four_contacts_with_orgs_events):
-    queries = {'lname': 'le', 'sort': 'fname'} # convert to uuids
+    queries = {'lname': 'le', 'sort': 'fname'}
     response = client.get("contacts", query_string=queries)
     response_body = response.get_json()
 
