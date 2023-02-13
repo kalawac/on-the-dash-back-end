@@ -9,7 +9,7 @@ from app.models.event import Event
 from app.routes.contact_routes import validate_request_body as validate_contact
 from app.routes.org_routes import validate_request_body as validate_org
 from app.routes.event_routes import validate_request_body as validate_event
-# from app.models.event_attendance import EventAttendance
+# from app.models.event_attendance import xEventAttendance
 
 
 @pytest.fixture
@@ -219,14 +219,14 @@ def four_contacts_with_orgs_events(client, three_orgs, one_event):
     # event_list = Event.query.all()
     # event = event_list[0]
 
-    # ea1 = EventAttendance(
+    # ea1 = xEventAttendance(
     #     event_id=event.id, 
     #     participant_id=participant_ids[1],
     #     attended=True,
     #     completed=False
     #     )
 
-    # ea2 = EventAttendance(
+    # ea2 = xEventAttendance(
     #     event_id=event.id,
     #     participant_id=participant_ids[2],
     #     attended=True,

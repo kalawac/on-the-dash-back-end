@@ -13,7 +13,7 @@ class Contact(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.Enum(Gender))
     orgs = db.relationship("Org", secondary="con_org", back_populates="contacts")
-    # events = db.relationship("Event", secondary="event_attendance", back_populates="participants")
+    events = db.relationship("xEventAttendance", back_populates="participant")
 
     # indicators = db.relationship("Indicator", secondary="ind_con" back_populates="participants")
     # I actually suspect that indicators relationship will be more like events (association object)

@@ -4,7 +4,7 @@ from datetime import date
 from app import db
 from app.models.event import Event
 from app.models.contact import Contact
-# from app.models.event_attendance import EventAttendance
+# from app.models.event_attendance import xEventAttendance
 from app.models.types.event_type import EventType
 from app.models.types.subject import Subject
 from .utils import validate_UUID, append_dicts_to_list
@@ -249,12 +249,58 @@ def delete_event(id):
     return make_response({"message": f"Event '{event.name}' successfully deleted"}, 200)
 
 
-# EventAttendance nested routes start here
+# xEventAttendance nested routes start here
 
 # @bp.route("/<uuid:id>/participants", methods=["GET"], strict_slashes=False)
-# def get_event_participant_list(id):
-    # below returns blank
-    # event = validate_UUID(Event, id)
-    # return jsonify(event.participants)
+# def get_event_participant_id_list(id):
+#     event = validate_UUID(Event, id)
+
+#     if event.participants:
+#         participant_list = [ str(contact.id) for contact in event.participants ]
+#     else:
+#         participant_list = []
+    
+#     return jsonify(participant_list)
 
 
+# @bp.route("/<uuid:id>/attendance", methods=["GET"], strict_slashes=False)
+# def get_event_attendance_data(id):
+#     event = validate_UUID(Event, id)
+
+#     if not event.participants:
+#         return jsonify(dict())
+        
+#     return jsonify(event.get_attendance_dict())
+
+
+# @bp.route("/<uuid:id>/attendance", methods=["PUT"], strict_slashes=False)
+# def update_event_attendance_data(id):
+#     event = validate_UUID(Event, id)
+#     request_body = request.get_json()
+
+#     if not event.participants:
+#         return jsonify(dict())
+
+#     participant_ids = set([ str(contact.id) for contact in event.participants ])
+
+#     for (contact_id, attendance_data) in request_body.items():
+#         contact = validate_UUID(Contact, contact_id)
+        
+#         if contact_id not in participant_ids:
+#             abort(make_response({"message": "Submitted participant not in event participant list"}, 400))
+
+#         attendance_instance = xEventAttendance.query.filter(
+#             xEventAttendance.event_id == id, xEventAttendance.participant_id == contact_id)
+#         attendance_instance.attended = attendance_data["attendance"]
+#         attendance_instance.completed = attendance_data["completion"]
+        
+#         db.session.add(attendance_instance)
+#         db.session.commit()
+        
+#     return jsonify(event.get_attendance_dict())
+
+# TODO: make org-contact association table using this pattern
+# TODO: drop event_attendance association table
+# TODO: reconstruct event_attendance using association object
+# TODO: on FE side, remember to make an Advanced Search page with forms
+# to allow users easy access to advanced search features, as well as maybe look for some of the flags

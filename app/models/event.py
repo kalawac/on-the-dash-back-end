@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 from app import db
-# from .event_attendance import EventAttendance
+# from .event_attendance import xEventAttendance
 from .types.event_type import EventType
 from .types.subject import Subject
 
@@ -15,11 +15,7 @@ class Event(db.Model):
     event_type = db.Column(db.Enum(EventType))
     subjects = db.Column(db.ARRAY(db.Enum(Subject)))
     date = db.Column(db.Date)
-    # participants = db.relationship("Contact", secondary="event_attendance",  back_populates="events")
-
-    # participant_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('contact.id'), nullable=True)
-    # attended = db.relationship("Contact", back_populates="events_attended"),
-    # completed = db.relationship("Contact", back_populates="events_completed"),
+    participants = db.relationship("xEventAttendance", back_populates="event")
 
 
     @classmethod
@@ -29,9 +25,18 @@ class Event(db.Model):
             event_type=data_dict["event_type"],
             subjects=data_dict["subjects"],
             date=data_dict["date"],
-            # participants = data_dict["participants"]
+            # participants=data_dict["participants"]
             )
 
+    # def get_attendance_dict(self):
+    #     attendance_query = xEventAttendance.query.filter_by(event_id=self.id).all()
+    #     attendance_dict = dict()
+
+    #     for attendance_data in attendance_query:
+    #         participant_id = str(attendance_data.participant_id)
+    #         attendance_dict[participant_id] = attendance_data.to_participant_dict()
+        
+    #     return attendance_dict
 
     def to_dict(self):
         event_dict = {
@@ -44,15 +49,7 @@ class Event(db.Model):
             }
 
         # if self.participants:
-        #     attendance_query = EventAttendance.query.filter_by(event_id=self.id).all()
-        #     attendance_dict = dict()
-
-        #     for attendance_data in attendance_query:
-        #         participant_id = str(attendance_data.participant_id)
-        #         print(participant_id)
-        #         attendance_dict[participant_id] = attendance_data.to_participant_dict()
-        
-        #     print(attendance_dict)
+        #     attendance_dict = self.get_attendance_dict()
 
         #     for contact in self.participants:
         #         contact_dict = dict(
@@ -63,7 +60,6 @@ class Event(db.Model):
         #             gender=contact.gender,
         #             attendance_data=attendance_dict[str(contact.id)]
         #         )
-        #         print(str(contact.id))
         #         event_dict["participants"].append(contact_dict)
         
         return event_dict

@@ -30,7 +30,7 @@ def create_app(test_config=None):
     from app.models.indicator import Indicator
     from app.models.org import Org
     from app.models.contact_org import xContactOrg
-    # from app.models.event_attendance import EventAttendance
+    from app.models.event_attendance import xEventAttendance
 
     db.init_app(app)
     migrate.init_app(app, db)
