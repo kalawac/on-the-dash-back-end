@@ -22,6 +22,7 @@ def test_create_contact_no_orgs_no_events(client):
         lname=test_response["lname"],
         age=test_response["age"],
         gender=test_response["gender"],
+        orgs=test_response["orgs"]
         )
 
     db.session.add(result)
@@ -78,6 +79,8 @@ def test_contact_from_dict_no_lname_raises_error(client):
         "fname": "Agnes",
         "age": 26,
         "gender": 1,
+        "orgs": [],
+        "events": [],
     }
 
     with pytest.raises(KeyError, match = "lname"):
@@ -90,6 +93,8 @@ def test_contact_to_dict_no_orgs_no_events(client):
         "lname": "Chow",
         "age": 26,
         "gender": 1,
+        "orgs": [],
+        "events": [],
     }
 
     new_contact = Contact.new_from_dict(test_response)
@@ -115,6 +120,8 @@ def test_contact_repr(client):
         "lname": "Chow",
         "age": 26,
         "gender": 1,
+        "orgs": [],
+        "events": [],
     }
 
     new_contact = Contact(
@@ -122,6 +129,7 @@ def test_contact_repr(client):
         lname=test_response["lname"],
         age=test_response["age"],
         gender=test_response["gender"],
+        orgs=test_response["orgs"]
         )
 
     db.session.add(new_contact)

@@ -13,7 +13,7 @@ class Org(db.Model):
     name = db.Column(db.String)
     org_sector = db.Column(db.Enum(OrgSector))
     foci = db.Column(db.ARRAY(db.Enum(WF, name="wf")))
-    # need to set up association table for contacts 0..+ relationship
+    contacts = db.relationship("Contact", secondary="con_org",  back_populates="orgs")
 
     def __repr__(self):
         return '<Org %r>' % self.name

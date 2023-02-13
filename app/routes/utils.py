@@ -1,17 +1,17 @@
 from flask import make_response, abort
 
-def validate_intID(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
+# def validate_intID(cls, model_id):
+#     try:
+#         model_id = int(model_id)
+#     except:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
 
-    instance = cls.query.get(model_id)
+#     instance = cls.query.get(model_id)
 
-    if not instance:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+#     if not instance:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
 
-    return instance
+#     return instance
 
 def validate_UUID(cls, model_id):
     # invalid UUIDs are handled and rejected by flask-UUID: 404, no message.

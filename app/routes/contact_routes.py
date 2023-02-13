@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request, make_response, abort
 import uuid
 
 from app.models.contact import Contact
+from app.models.org import Org
 from app.models.types.gender import Gender
 from .utils import validate_UUID, append_dicts_to_list
 
@@ -29,11 +30,25 @@ def validate_request_body(request_body):
     gender_id = request_body["gender"]
     gender_enum = validate_gender_enum(gender_id)
 
+    org_data = request_body.get("orgs", [])
+    org_list = []
+
+    if org_data:
+        if type(org_data) == list or type(org_data) == tuple:
+            for org_id in org_data:
+                org = validate_UUID(Org, org_id)
+                org_list.append(org)
+
+        else:
+            org = validate_UUID(Org, org_list)
+            org_list.append(org)
+
     validated_dict = dict(
         fname=request_body["fname"],
         lname=request_body["lname"],
         age=request_body["age"] if request_body["age"] else 0,
-        gender=gender_enum
+        gender=gender_enum,
+        orgs=org_list
     )
 
     return validated_dict
@@ -120,7 +135,8 @@ def get_all_contacts():
                 query_items = org_query.split(org_plus_split)
                 item_query = Contact.query
                 for org_id in query_items:
-                    item_query = item_query.filter_by(org=org_id)
+                    org = validate_UUID(Org, org_id)
+                    item_query = item_query.filter(Contact.orgs.any(org.id))
                 
                 if existing_query:
                     contacts_query = contacts_query.union(item_query)
@@ -129,14 +145,16 @@ def get_all_contacts():
             elif org_query.find("_") > -1:
                 query_items = org_query.split("_")
                 for org_id in query_items:
-                    item_query = Contact.query.filter_by(org=org_id)
+                    org = validate_UUID(Org, org_id)
+                    item_query = Contact.query.filter(Contact.orgs.any(org.id))
                     contacts_query = contacts_query.union(item_query)
             else:
+                org = validate_UUID(Org, org_query)
                 if existing_query:
-                    q_org = Contact.query.filter_by(org=org_query)
+                    q_org = Contact.query.filter(Contact.orgs.any(org.id))
                     contacts_query = contacts_query.union(q_org)
                 else:
-                    contacts_query = contacts_query.filter_by(org=org_query)
+                    contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
 
     else:
         if fname_query:
@@ -159,15 +177,18 @@ def get_all_contacts():
 
             if org_plus_split:
                 query_items = org_query.split(org_plus_split)
-                for item in query_items:
-                    contacts_query = contacts_query.filter_by(org=item)
+                for org_id in query_items:
+                    org = validate_UUID(Org, org_id)
+                    contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
             elif org_query.find("_") > -1:
                 query_items = org_query.split("_")
-                for item in query_items:
-                    item_query = Contact.query.filter_by(org=item)
+                for org_id in query_items:
+                    org = validate_UUID(Org, org_id)
+                    item_query = Contact.query.filter(Contact.orgs.any(org.id))
                     contacts_query = contacts_query.union(item_query)
             else:
-                contacts_query = contacts_query.filter_by(org=org_query)
+                org = validate_UUID(Org, org_query)
+                contacts_query = contacts_query.filter(Contact.orgs.any(org.id))
 
     if sort_query:
         if sort_query == "desc":
@@ -207,6 +228,7 @@ def update_contact(id):
     contact.lname = contact_dict["lname"]
     contact.age = contact_dict["age"]
     contact.gender = contact_dict["gender"]
+    contact.orgs = contact_dict["orgs"]
 
     db.session.add(contact)
     db.session.commit()
