@@ -20,17 +20,24 @@ class xEventAttendance(db.Model):
     #         participant_id=data_dict["participant_id"]
     #         )
 
-    # def to_dict(self):
-    #     event_attendance_dict = dict()
+    @classmethod
+    def attach_extra_data(cls, data_dict):
+        return cls(
+            attended=data_dict["attendance"], 
+            completed=data_dict["completion"]
+            )
 
-    #     event_attendance_dict[self.participant_id] = dict(
-    #         attendance=self.attended,
-    #         completion=self.completed
-    #         )
-    #     return event_attendance_dict
+    def to_dict(self):
+        event_attendance_dict = dict()
 
-    # def to_participant_dict(self):
-    #     return dict(
-    #         attendance=self.attended,
-    #         completion=self.completed
-    #         )
+        event_attendance_dict[self.participant_id] = dict(
+            attendance=self.attended,
+            completion=self.completed
+            )
+        return event_attendance_dict
+
+    def to_participant_dict(self):
+        return dict(
+            attendance=self.attended,
+            completion=self.completed
+            )

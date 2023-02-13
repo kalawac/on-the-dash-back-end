@@ -4,7 +4,7 @@ from datetime import date
 from app import db
 from app.models.event import Event
 from app.models.contact import Contact
-# from app.models.event_attendance import xEventAttendance
+from app.models.event_attendance import xEventAttendance
 from app.models.types.event_type import EventType
 from app.models.types.subject import Subject
 from .utils import validate_UUID, append_dicts_to_list
@@ -65,17 +65,15 @@ def validate_request_body(request_body):
             subject_list.append(subject_enum)
 
     participant_data = request_body.get("participants", [])
-    participant_list = []
+    participant_dict = {}
+    attendance_dict = {}
 
-    if participant_data:
-        if type(participant_data) == list or type(participant_data) == tuple:
-            for contact_id in participant_data:
+    if participant_data: # list of dictionaries
+            for contact_dict in participant_data:
+                contact_id = str(contact_dict["id"])
                 participant = validate_UUID(Contact, contact_id)
-                participant_list.append(participant)
-
-        else:
-            participant = validate_UUID(Contact, participant_list)
-            participant_list.append(participant)
+                participant_dict[contact_id] = participant
+                attendance_dict[contact_id] = contact_dict["attendance_data"]
 
 
     validated_dict = dict(
@@ -83,7 +81,8 @@ def validate_request_body(request_body):
         event_type=type_enum,
         subjects=subject_list,
         date=date_obj,
-        participants=participant_list
+        participants=participant_dict,
+        attendance=attendance_dict
     )
 
     return validated_dict
@@ -92,9 +91,30 @@ def validate_request_body(request_body):
 def create_event():
     request_body = request.get_json()
 
-    event_dict = validate_request_body(request_body)
+    event_data = validate_request_body(request_body)
+
+    event_dict = dict(
+        name=event_data["name"],
+        event_type=event_data["event_type"],
+        subjects=event_data["subjects"],
+        date=event_data["date"]
+    )
 
     new_event = Event.new_from_dict(event_dict)
+
+    participant_dict = event_data.get("participants")
+    attendance_dict = event_data.get("attendance")
+
+    if participant_dict:
+        for contact_id in participant_dict.keys():
+            if attendance_dict:
+                new_event_att = xEventAttendance.attach_extra_data(attendance_dict[contact_id])
+            else:
+                new_event_att = xEventAttendance(
+                    attended=False, completed=False)
+            new_event_att.participant = participant_dict[contact_id]
+            new_event.participants.append(new_event_att)
+
 
     db.session.add(new_event)
     db.session.commit()
