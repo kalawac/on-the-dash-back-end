@@ -12,29 +12,24 @@ class Contact(db.Model):
     lname = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer)
     gender = db.Column(db.Enum(Gender))
-    # org_ids = db.Column(UUID(as_uuid = True), db.ForeignKey('org.id')) # will come back as an empty list
-    # orgs = db.relationship("Org", back_populates="contacts") # will probably come back as empty list, single ID may come back as None
-    events = db.relationship("Event", secondary="event_attendance", back_populates="participants", viewonly=True)
-    event_assoc = db.relationship("EventAttendance", back_populates="contact")
+    orgs = db.relationship("Org", secondary="con_org", back_populates="contacts")
+    # events = db.relationship("Event", secondary="event_attendance", back_populates="participants")
 
-    # indicators = db.relationship("Indicator", back_populates="participants")
+    # indicators = db.relationship("Indicator", secondary="ind_con" back_populates="participants")
+    # I actually suspect that indicators relationship will be more like events (association object)
 
     def __repr__(self):
         return '<Contact %r>' % " ".join([self.fname,self.lname])
 
     @classmethod
     def new_from_dict(cls, data_dict):
-        new_contact = cls(
+        return cls(
             fname=data_dict["fname"], 
             lname=data_dict["lname"], 
             age=data_dict["age"] if data_dict["age"] else 0,
             gender=data_dict["gender"],
+            orgs=data_dict.get("orgs", [])
             )
-
-        # if len(data_dict.get("org_ids", [])) >= 1:
-        #     new_contact.orgs.extend(data_dict["org_ids"])
-        
-        return new_contact
 
     def to_dict(self):
         contact_dict = {
@@ -47,9 +42,13 @@ class Contact(db.Model):
                 "events": [],
             }
         
-        # if self.org_ids:
-        #     for org in self.orgs:
-        #         contact_dict["orgs"].append(org.to_dict())
+        if self.orgs:
+            for org in self.orgs:
+                org_dict = {
+                    "id": str(org.id),
+                    "name": org.name
+                }
+                contact_dict["orgs"].append(org_dict)
 
         # if self.events:
         #     for event in self.events:

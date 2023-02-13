@@ -169,11 +169,8 @@ def three_events(client):
 
 @pytest.fixture
 def four_contacts_with_orgs_events(client, three_orgs, one_event):
-    org_ids = []
     orgs = Org.query.all()
-
-    for org in orgs:
-        org_ids.append(org.id)
+    org_ids = [ str(org.id) for org in orgs ]
 
     o1 = org_ids[0]
     o2 = org_ids[1]
@@ -213,28 +210,28 @@ def four_contacts_with_orgs_events(client, three_orgs, one_event):
     db.session.add_all([contact1, contact2, contact3, contact4])
     db.session.commit()
 
-    participants = Contact.query.all()
-    participant_ids = []
+    # participants = Contact.query.all()
+    # participant_ids = []
 
-    for participant in participants:
-        participant_ids.append(participant.id)
+    # for participant in participants:
+    #     participant_ids.append(participant.id)
 
-    event_list = Event.query.all()
-    event = event_list[0]
+    # event_list = Event.query.all()
+    # event = event_list[0]
 
-    ea1 = EventAttendance(
-        event_id=event.id, 
-        participant_id=participant_ids[1],
-        attended=True,
-        completed=False
-        )
+    # ea1 = EventAttendance(
+    #     event_id=event.id, 
+    #     participant_id=participant_ids[1],
+    #     attended=True,
+    #     completed=False
+    #     )
 
-    ea2 = EventAttendance(
-        event_id=event.id,
-        participant_id=participant_ids[2],
-        attended=True,
-        completed=True
-        )
+    # ea2 = EventAttendance(
+    #     event_id=event.id,
+    #     participant_id=participant_ids[2],
+    #     attended=True,
+    #     completed=True
+    #     )
     
-    db.session.add_all([ea1, ea2])
-    db.session.commit()
+    # db.session.add_all([ea1, ea2])
+    # db.session.commit()
