@@ -7,7 +7,7 @@ from app.models.contact import Contact
 # from app.models.event_attendance import EventAttendance
 from app.models.types.event_type import EventType
 from app.models.types.subject import Subject
-from .utils import validate_UUID, validate_intID, append_dicts_to_list
+from .utils import validate_UUID, append_dicts_to_list
 
 
 bp = Blueprint("events_bp", __name__, url_prefix="/events")
